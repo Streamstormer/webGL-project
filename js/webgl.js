@@ -578,7 +578,7 @@ var webgl = {
         gl = canvas.getContext("experimental-webgl");
         this.gl = gl;
         gl.viewport(0, 0, canvas.width, canvas.height);
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(0.0, 0.0, 0.5, 0.5);
         gl.enable(gl.DEPTH_TEST);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         this.systemInfo();
@@ -662,7 +662,7 @@ var webgl = {
        	this.repaintLoop.setup();
 
         // setup handlers
-        //this.setupKeyHandler();
+        this.setupKeyHandler();
     },
     displayFunc: function () {
         var gl = this.gl;
