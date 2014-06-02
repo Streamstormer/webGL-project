@@ -227,7 +227,7 @@ function makeBox(ctx)
     retval.indexObject = ctx.createBuffer();
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, retval.indexObject);
     ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, indices, ctx.STATIC_DRAW);
-    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, null);
+ //   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, null);
 
     retval.numIndices = indices.length;
 

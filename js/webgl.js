@@ -26,14 +26,14 @@ var webgl = {
             this.projection.perspective(30, 1.0, 1, 10000);
             this.viewingTranslate = {
                 x: 0,
-                y: 10,
-                z: -50
+                y: 0,
+                z: -5
             };
             this.viewingRotations = {
-                x: 20,
-                y: 20,
+                x: 50,
+                y: 0,
                 z: 0
-            }
+            };
             this.updateViewing.call(this);
         },
         updateViewing: function() {
@@ -41,6 +41,7 @@ var webgl = {
             this.viewing = new J3DIMatrix4();
             this.viewing.translate(t.x, t.y, t.z);
             var r = this.viewingRotations;
+			this.viewing.scale(1.0,1.0,1.0) // 2.0,1.5,10.0
             this.viewing.rotate(r.x, 1, 0, 0);
             this.viewing.rotate(r.y, 0, 1, 0);
             this.viewing.rotate(r.z, 0, 0, 1);
@@ -113,7 +114,7 @@ var webgl = {
         };
         var gl = webgl.gl;
         var error = gl.getError();
-        while (error != gl.NO_ERROR) {
+        while (error !== gl.NO_ERROR) {
             if (message) {
                 console.log(message + ": " + errorToString(error));
             } else {
@@ -253,7 +254,7 @@ var webgl = {
                 }
                 webgl.displayFunc.call(webgl);
                 webgl.repaintLoop.frameRendering = false;
-            }, 16);
+            }, 500); // 16
         }
     },
     createShader: function (gl, type, source) {
@@ -296,14 +297,16 @@ var webgl = {
                 gl.useProgram(this.program);
             }
         };
-        $.get("shaders/texture/vertex.glsl", function(data) {
+        $.get("shaders/texture/vertex.glsl", function(data, response) {
+			console.log(data)
             shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
-            shader.create.call(shader);
-        });
-        $.get("shaders/texture/fragment.glsl", function(data) {
+            shader.create.call(data);
+        }, "html");
+        $.get("shaders/texture/fragment.glsl", function(data, response) {
+			console.log(data)
             shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
             shader.create.call(shader);
-        });
+        }, "html");
         return shader;
     },
     createLightShader: function() {
@@ -340,11 +343,11 @@ var webgl = {
         $.get("shaders/light/vertex.glsl", function(data) {
             shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
             shader.create.call(shader);
-        });
+        }, "html");
         $.get("shaders/light/fragment.glsl", function(data) {
             shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
             shader.create.call(shader);
-        });
+        }, "html");
         return shader;
     },
     createColorShader: function() {
@@ -435,6 +438,139 @@ var webgl = {
             }
         });
     },
+	makeGround: function (gl){
+    var vertices = new Float32Array(
+        [  -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1    // v0-v1-v2-v3 front
+              // v0-v5-v6-v1 top
+             // v1-v6-v7-v2 left
+             // v7-v4-v3-v2 bottom
+           ]   // v4-v7-v6-v5 back
+    );
+
+    // normal array
+    var normals = new Float32Array(
+        [  0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0     // v0-v1-v2-v3 front
+               // v0-v5-v6-v1 top
+               // v1-v6-v7-v2 left
+               // v7-v4-v3-v2 bottom
+            ]    // v4-v7-v6-v5 back
+       );
+
+
+    // texCoord array
+    var texCoords = new Float32Array(
+        [  0, 0,   1, 0,   1, 1,   0, 1    // v0-v1-v2-v3 front
+             // v0-v5-v6-v1 top
+               // v1-v6-v7-v2 left
+              // v7-v4-v3-v2 bottom
+           ]   // v4-v7-v6-v5 back
+       );
+
+    // index array
+    var indices = new Uint8Array(
+        [  0, 1, 2,   0, 2, 3    // front
+              // top
+              // left
+             // bottom
+          ]   // back
+      );
+
+
+		var retval = { };
+
+		retval.normalObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, retval.normalObject);
+		gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+
+		retval.texCoordObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, retval.texCoordObject);
+		gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+
+		retval.vertexObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, retval.vertexObject);
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+		retval.indexObject = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, retval.indexObject);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+		retval.numIndices = indices.length;
+
+		console.log(indices.length);
+
+		return retval;
+	},
+	makeOpenBox: function (gl){
+		   var vertices = new Float32Array(
+        [  1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,    // v0-v1-v2-v3 front
+           1, 1, 1,   1,-1, 1,   1,-1,-1,   1, 1,-1,    // v0-v3-v4-v5 right
+           1, 1, 1,   1, 1,-1,  -1, 1,-1,  -1, 1, 1,    // v0-v5-v6-v1 top
+          -1, 1, 1,  -1, 1,-1,  -1,-1,-1,  -1,-1, 1,    // v1-v6-v7-v2 left
+          -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1,    // v7-v4-v3-v2 bottom
+           1,-1,-1,  -1,-1,-1,  -1, 1,-1,   1, 1,-1 ]   // v4-v7-v6-v5 back
+    );
+
+    // normal array
+    var normals = new Float32Array(
+        [  0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     // v0-v1-v2-v3 front
+           1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,     // v0-v3-v4-v5 right
+           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     // v0-v5-v6-v1 top
+          -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,     // v1-v6-v7-v2 left
+           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // v7-v4-v3-v2 bottom
+           0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 ]    // v4-v7-v6-v5 back
+       );
+
+
+    // texCoord array
+    var texCoords = new Float32Array(
+        [  1, 1,   0, 1,   0, 0,   1, 0,    // v0-v1-v2-v3 front
+           0, 1,   0, 0,   1, 0,   1, 1,    // v0-v3-v4-v5 right
+           1, 0,   1, 1,   0, 1,   0, 0,    // v0-v5-v6-v1 top
+           1, 1,   0, 1,   0, 0,   1, 0,    // v1-v6-v7-v2 left
+           0, 0,   1, 0,   1, 1,   0, 1,    // v7-v4-v3-v2 bottom
+           0, 0,   1, 0,   1, 1,   0, 1 ]   // v4-v7-v6-v5 back
+       );
+
+    // index array
+    var indices = new Uint8Array(
+        [  0, 1, 2,   0, 2, 3,    // front
+           4, 5, 6,   4, 6, 7,    // right
+           
+          12,13,14,  12,14,15,    // left
+          16,17,18,  16,18,19,    // bottom
+          20,21,22,  20,22,23 ]   // back
+      );
+
+
+		var retval = { };
+		retval.normalObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, retval.normalObject);
+		gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+
+		retval.texCoordObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, retval.texCoordObject);
+		gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+
+		retval.vertexObject = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, retval.vertexObject);
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+		retval.indexObject = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, retval.indexObject);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+		retval.numIndices = indices.length;
+
+		console.log(indices.length);
+
+		return retval;
+	},
     init: function (canvasName, vertexShaderName, fragmentShaderName) {
         var canvas, gl;
         // setup the API
@@ -450,13 +586,30 @@ var webgl = {
         // create the projection matrix
         this.matrices.init.call(this.matrices);
 
+		// ground objects
+		var object = this.makeGround(gl)
+		object.indexSize = gl.UNSIGNED_BYTE;
+        object.loaded = true;
+        // TODO: change texture functionality so that it does not render the object before texture is loaded
+        object.texture = loadImageTexture(gl, "textures/metall.jpg");
+        object.shader = this.createTextureShader();
+		object.model = function() {
+            var model = new J3DIMatrix4();	
+			model.scale(1.6,1.2,1.8)
+			//model.perspective(30, 1.0, 1, 10000)
+            //model.translate(0.0, -20.0, 0.0);
+           // model.rotate(0.0, 0.0, 1.0, 0.0);;
+			return model
+		};
+        this.objects[this.objects.length] = object;
+
         // create some objects
         // first a box, textured with a wood texture, which rotates around the y axis
-        var object = makeBox(gl);
+        object = this.makeOpenBox(gl);
         object.indexSize = gl.UNSIGNED_BYTE;
         object.loaded = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
-        object.texture = loadImageTexture(gl, "textures/wood.jpeg");
+        object.texture = loadImageTexture(gl, "textures/glas.jpg");
         object.angle = 0;
         object.shader = this.createTextureShader();
         object.update = function() {
@@ -464,11 +617,12 @@ var webgl = {
         };
         object.model = function() {
             var model = new J3DIMatrix4();
-            model.rotate(this.angle, 0.0, 1.0, 0.0);
+			model.scale(0.5,0.5,0.5)
+            //model.rotate(this.angle, 0.0, 1.0, 0.0);
             return model;
         };
         this.objects[this.objects.length] = object;
-
+		/*
         // and a teapot under light rotating in the opposite direction from the box
         object = loadObj(gl, "objects/teapot.obj");
         object.indexSize = gl.UNSIGNED_SHORT;
@@ -502,13 +656,13 @@ var webgl = {
             model.rotate(this.angle, 0.0, 0.0, 1.0);
             return model;
         };
-        this.objects[this.objects.length] = object;
+        this.objects[this.objects.length] = object;*/
 
         // setup animation
-        this.repaintLoop.setup();
+       	this.repaintLoop.setup();
 
         // setup handlers
-        this.setupKeyHandler();
+        //this.setupKeyHandler();
     },
     displayFunc: function () {
         var gl = this.gl;
