@@ -1,6 +1,7 @@
 var webgl = {
     gl: null,
     objects: [],
+	time: 0,
     /**
      * Encapsulates Projection and Viewing matrix and some helper functions.
      **/
@@ -205,6 +206,9 @@ var webgl = {
             // not yet loaded, don't render
             return;
         }
+		// Set Time		
+		gl.uniform1f(shader.timeLocation, this.time);
+
         if (object.texture !== undefined) {
             gl.bindTexture(gl.TEXTURE_2D, object.texture);
         }
@@ -213,6 +217,36 @@ var webgl = {
             gl.bindBuffer(gl.ARRAY_BUFFER, object.vertexObject);
             gl.vertexAttribPointer(shader.vertexLocation, 3, gl.FLOAT, false, 0, 0);
         }
+
+		// start:particle related Attributes
+        if (shader.colorObject !== undefined && object.colorObject !== undefined) {
+            gl.enableVertexAttribArray(shader.colorLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
+            gl.vertexAttribPointer(shader.colorLocation, 4, gl.FLOAT, false, 0, 0);
+        }
+        if (shader.velocityLocation !== undefined && object.velocityObject !== undefined) {
+            gl.enableVertexAttribArray(shader.velocityLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, object.velocityObject);
+            gl.vertexAttribPointer(shader.velocityLocation, 3, gl.FLOAT, false, 0, 0);
+        }
+        if (shader.startTimeLocation !== undefined && object.startTimeObject !== undefined) {
+            gl.enableVertexAttribArray(shader.startTimeLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, object.startTimeObject);
+            gl.vertexAttribPointer(shader.startTimeLocation, 1, gl.FLOAT, false, 0, 0);
+        }        
+		if (shader.sizeLocation !== undefined && object.sizeObject !== undefined) {
+            gl.enableVertexAttribArray(shader.sizeLocation);
+            gl.bindBuffer(gl.ARRAY_BUFFER, object.sizeObject);
+            gl.vertexAttribPointer(shader.sizeLocation, 1, gl.FLOAT, false, 0, 0);
+        }
+		if(object.particle == true) {
+			gl.drawArrays(gl.POINTS, 0, object.particleObject.length);	
+		}
+
+		// End: particle related Attributes
+
+
+
         if (shader.normalLocation !== undefined && object.normalObject !== undefined) {
             gl.enableVertexAttribArray(shader.normalLocation);
             gl.bindBuffer(gl.ARRAY_BUFFER, object.normalObject);
@@ -252,9 +286,10 @@ var webgl = {
                     }
                     object.update.call(object);
                 }
+				this.time += 16/1000;
                 webgl.displayFunc.call(webgl);
                 webgl.repaintLoop.frameRendering = false;
-            }, 500); // 16
+            }, 16); // 16
         }
     },
     createShader: function (gl, type, source) {
@@ -309,6 +344,54 @@ var webgl = {
         }, "html");
         return shader;
     },
+	createParticleShader: function () {
+		var gl = this.gl;
+        var shader = {
+            program: -1,
+            loaded: false,
+            mvpLocation: -1,
+            normalMatrixLocation: -1,
+            lightDirLocation: -1,
+            vertexLocation: -1,
+            normalLocation: -1,
+			create: function() {
+				if (this.vertexShader === undefined || this.fragmentShader === undefined) {
+           			return;
+        		}
+				var program = webgl.createProgram(this.vertexShader, this.fragmentShader);
+            	this.program = program;
+            	this.use();
+    			var vertex = createShader(gl.VERTEX_SHADER, "vertex_shader");
+        		var fragment = createShader(gl.FRAGMENT_SHADER, "fragment_shader");
+                var shader = {};
+				// resolve locations
+				this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
+                //this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
+                //this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
+				this.timeLocation 		  = gl.getUniformLocation(program, "u_time"); 
+                this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
+				this.colorLocation		  = gl.getAttribLocation(program, "initialColor");
+                //this.normalLocation       = gl.getAttribLocation(program, "normal"),
+                this.velocityLocation     = gl.getAttribLocation(program, "velocity");
+                this.startTimeLocation    = gl.getAttribLocation(program, "startTime");
+                this.sizeLocation         = gl.getAttribLocation(program, "size");
+                
+                this.loaded = true;
+	    	},
+			use: function () {
+                gl.useProgram(this.program);
+			}
+		};
+        $.get("shaders/particle/vertex.glsl", function(data) {
+            shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
+            shader.create.call(shader);
+        }, "html");
+        $.get("shaders/particle/fragment.glsl", function(data) {
+            shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
+            shader.create.call(shader);
+        }, "html");
+        return shader;
+	},	
     createLightShader: function() {
         var gl = this.gl;
         var shader = {
@@ -571,6 +654,58 @@ var webgl = {
 
 		return retval;
 	},
+    createBuffer: function (gl, vertices) {
+	    var vbo = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        return vbo;
+    },
+    createParticle: function () {
+	    var particle = {};
+        particle.position = [Math.random(), Math.random(), Math.random()];
+        particle.velocity = [0, 0, 0];
+        particle.color = [1, 1, 1, 1];
+        particle.startTime = Math.random() * 30 + 1;
+        particle.size = Math.random()*15 + 1;
+        return particle;
+    },
+	createParticelSystem: function(gl) {
+		var particles = [];
+        for (var i=0; i<1000; i++) {
+        	particles.push(this.createParticle());
+        }
+        var vertices = [];
+        var velocities = [];
+        var colors = [];
+        var startTimes = [];
+        var sizes = [];
+
+        for (i=0; i<particles.length; i++) {
+        	var particle = particles[i];
+        	vertices.push(particle.position[1]);
+            vertices.push(particle.position[2]);
+            vertices.push(particle.position[3]);
+           	velocities.push(particle.velocity[0]);
+            velocities.push(particle.velocity[1]);
+            velocities.push(particle.velocity[2]);
+            colors.push(particle.color[0]);
+            colors.push(particle.color[1]);
+            colors.push(particle.color[2]);
+            colors.push(particle.color[3]);
+            startTimes.push(particle.startTime);
+            sizes.push(particle.size);
+        }
+		var retval = { };
+        retval.particleObject = particles;
+        retval.vertexObject = this.createBuffer(gl, vertices);
+        retval.velocityObject = this.createBuffer(gl, velocities);
+        retval.colorObject = this.createBuffer(gl, colors);
+        retval.startTimesObject = this.createBuffer(gl, startTimes);
+        retval.sizeObject = this.createBuffer(gl, sizes);
+
+		retval.particle = true;
+		return retval;
+	},
     init: function (canvasName, vertexShaderName, fragmentShaderName) {
         var canvas, gl;
         // setup the API
@@ -583,8 +718,21 @@ var webgl = {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         this.systemInfo();
 
+
         // create the projection matrix
         this.matrices.init.call(this.matrices);
+
+		// particle objects
+		var object = this.createParticelSystem(gl)
+		object.loaded = true;
+		this.objects[this.objects.length] = object;
+		object.model = function() {
+            var model = new J3DIMatrix4();
+			model.translate(2, 2, -10);
+            model.rotate(180, 1,1,0);
+            return model;
+        };
+
 
 		// ground objects
 		var object = this.makeGround(gl)
