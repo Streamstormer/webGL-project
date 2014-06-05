@@ -360,9 +360,7 @@ var webgl = {
         		}
 				var program = webgl.createProgram(this.vertexShader, this.fragmentShader);
             	this.program = program;
-            	this.use();
-    			var vertex = createShader(gl.VERTEX_SHADER, "vertex_shader");
-        		var fragment = createShader(gl.FRAGMENT_SHADER, "fragment_shader");
+            	this.use();;
                 var shader = {};
 				// resolve locations
 				this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
@@ -724,14 +722,15 @@ var webgl = {
 
 		// particle objects
 		var object = this.createParticelSystem(gl)
+		object,shader = this.createParticleShader();
 		object.loaded = true;
-		this.objects[this.objects.length] = object;
 		object.model = function() {
             var model = new J3DIMatrix4();
 			model.translate(2, 2, -10);
             model.rotate(180, 1,1,0);
             return model;
         };
+		this.objects[this.objects.length] = object;
 
 
 		// ground objects
