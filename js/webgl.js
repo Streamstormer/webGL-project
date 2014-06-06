@@ -1,7 +1,9 @@
+"use strict";
+
 var webgl = {
     gl: null,
     objects: [],
-	time: 0,
+	time: 0.0,
     /**
      * Encapsulates Projection and Viewing matrix and some helper functions.
      **/
@@ -219,7 +221,7 @@ var webgl = {
         }
 
 		// start:particle related Attributes
-        if (shader.colorObject !== undefined && object.colorObject !== undefined) {
+        if (shader.colorLocation !== undefined && object.colorObject !== undefined) {
             gl.enableVertexAttribArray(shader.colorLocation);
             gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
             gl.vertexAttribPointer(shader.colorLocation, 4, gl.FLOAT, false, 0, 0);
@@ -350,10 +352,10 @@ var webgl = {
             program: -1,
             loaded: false,
             mvpLocation: -1,
-            normalMatrixLocation: -1,
-            lightDirLocation: -1,
+           // normalMatrixLocation: -1,
+           // lightDirLocation: -1,
             vertexLocation: -1,
-            normalLocation: -1,
+           // normalLocation: -1,
 			create: function() {
 				if (this.vertexShader === undefined || this.fragmentShader === undefined) {
            			return;
@@ -382,10 +384,12 @@ var webgl = {
 		};
         $.get("shaders/particle/vertex.glsl", function(data) {
             shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
+			console.log("loaded!");
             shader.create.call(shader);
         }, "html");
         $.get("shaders/particle/fragment.glsl", function(data) {
             shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
+			console.log("loaded!");
             shader.create.call(shader);
         }, "html");
         return shader;
@@ -669,7 +673,7 @@ var webgl = {
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0; i<1000; i++) {
+        for (var i=0; i<100; i++) {
         	particles.push(this.createParticle());
         }
         var vertices = [];
@@ -706,6 +710,10 @@ var webgl = {
 	},
     init: function (canvasName, vertexShaderName, fragmentShaderName) {
         var canvas, gl;
+
+		$(document).ajaxError(function(e,xhr,opt){
+		    console.log("Error requesting " + opt.url + ": " + xhr.status + " " + xhr.statusText);
+		});
         // setup the API
         canvas = document.getElementById(canvasName);
         gl = canvas.getContext("experimental-webgl");
@@ -722,10 +730,11 @@ var webgl = {
 
 		// particle objects
 		var object = this.createParticelSystem(gl)
-		object,shader = this.createParticleShader();
+		object.shader = this.createParticleShader();
 		object.loaded = true;
 		object.model = function() {
             var model = new J3DIMatrix4();
+			model.perspective(50, 1.0, 1, 10000);
 			model.translate(2, 2, -10);
             model.rotate(180, 1,1,0);
             return model;
@@ -818,6 +827,11 @@ var webgl = {
         for (var i = 0; i < this.objects.length; i++) {
             var object, shader, modelView, normalMatrix, modelViewProjection;
             object = this.objects[i];
+
+		/*	if(object.particle && object.shader != undefined) {
+				console.log("display");
+			}*/
+
             if (object.shader === undefined) {
                 // no shader is set, cannot render
                 continue;
