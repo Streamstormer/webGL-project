@@ -4,9 +4,12 @@ var webgl = {
     gl: null,
     objects: [],
 	time: 0.0,
+
     /**
      * Encapsulates Projection and Viewing matrix and some helper functions.
      **/
+	
+		
     matrices: {
         projection: new J3DIMatrix4(),
         viewing: new J3DIMatrix4(),
@@ -480,7 +483,7 @@ var webgl = {
         return shader;
     },
     setupKeyHandler: function() {
-		var capture = false,
+		/*var capture = false,
 			start = [],
 			angleX = 0,
 			angleY = 0;
@@ -508,9 +511,9 @@ var webgl = {
 					angleY+=y;
 					//consolge.log("Angle: ("+angleX+","+angleY+")");
 				}
-			});
-		});
-        /*var m = this.matrices;
+			});*/
+		
+        var m = this.matrices;
         $("body").keydown(function (event) {
             switch (event.keyCode) {
             case 107:
@@ -552,7 +555,7 @@ var webgl = {
                 break;
             }
         });
-    },*/,
+    },
 	makeGround: function (gl){
     var vertices = new Float32Array(
         [  -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1    // v0-v1-v2-v3 front
@@ -738,6 +741,7 @@ var webgl = {
 		retval.particle = true;
 		return retval;
 	},
+	
     init: function (canvasName, vertexShaderName, fragmentShaderName) {
         var canvas, gl;
 
@@ -749,18 +753,14 @@ var webgl = {
         gl = canvas.getContext("experimental-webgl");
         this.gl = gl;
         gl.viewport(0, 0, canvas.width, canvas.height);
+		
+		
         gl.clearColor(0.0, 0.0, 0.5, 0.5);
         gl.enable(gl.DEPTH_TEST);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         this.systemInfo();
 		
-		//update mvMatrix
-		mat4.identity(mvMatrix);
-		mat4.translate(mvMatrix, [0.0,0.0,-20.0]);
-		mat4.rotate(mvMatrix, angleX*2*Math.PI/180.0,[0.0,1.0,0.0]);
-		mat4.rotate(mvMatrix, angleY*2*Math.PI/180.0, [1.0,0.0,0.0]);
-
-
+		
         // create the projection matrix
         this.matrices.init.call(this.matrices);
 
