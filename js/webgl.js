@@ -483,37 +483,7 @@ var webgl = {
         return shader;
     },
     setupKeyHandler: function() {
-		/*var capture = false,
-			start = [],
-			angleX = 0,
-			angleY = 0;
-		$(document).ready(function(){
-			$("#my-canvas").on("mousedown",function(e){
-				capture = true;
-				start = [e.pageX, e.pageY];
-				console.log("start:"+start);
-			});
-			$("#my-canvas").on("mouseup",function(e){
-				capture = false;
-				console.log("end capture");
-			});
-			$("#my-canvas").on("mousemove",function(e){
-				if (capture)
-				{
-					var x = (e.pageX - start[0]);
-					var y = (e.pageY - start[1]);
-					
-					//update start position
-					start[0] = e.pageX;
-					start[1] = e.pageY;
-					
-					angleX+=x;
-					angleY+=y;
-					//consolge.log("Angle: ("+angleX+","+angleY+")");
-				}
-			});*/
-		
-        var m = this.matrices;
+		var m = this.matrices;
         $("body").keydown(function (event) {
             switch (event.keyCode) {
             case 107:
@@ -555,7 +525,7 @@ var webgl = {
                 break;
             }
         });
-    },
+		},
 	makeGround: function (gl){
     var vertices = new Float32Array(
         [  -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1    // v0-v1-v2-v3 front
@@ -760,6 +730,7 @@ var webgl = {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         this.systemInfo();
 		
+			
 		
         // create the projection matrix
         this.matrices.init.call(this.matrices);
