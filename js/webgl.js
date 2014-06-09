@@ -4,12 +4,59 @@ var webgl = {
     gl: null,
     objects: [],
 	time: 0.0,
+	life: 250,
+
+	elements: {
+		HYDRO: -25,
+		KALIUM: -15,
+		TITAN: 35,
+		FERRUM: 10,
+		URAN: -15,
+		CARBON: 10,
+		MAGNESIUM: -20,
+		OXID: -5,
+		select: function() {
+			//console.log(.Object.getOwnPropertyNames())
+			var select = document.getElementById("select");
+			var value = select.selectedIndex;
+			
+			switch(value) {
+				case 0:
+					webgl.life += this.FERRUM;
+					break;
+				case 1:
+					webgl.life += this.OXID;
+					break;
+				case 2:
+					webgl.life += this.HYDRO;
+					break;
+				case 3:
+					webgl.life += this.URAN;
+					break;
+				case 4:
+					webgl.life += this.CARBON;
+					break;
+				case 5:
+					webgl.life += this.TITAN;
+					break;
+				case 6:
+					webgl.life += this.MAGNESIUM;
+					break;
+				case 7:
+					webgl.life += this.KALIUM;
+					break;
+				default:
+					console.log("Error: unknown element"); 
+			}
+			
+		},
+	},
+
+
 
     /**
      * Encapsulates Projection and Viewing matrix and some helper functions.
      **/
-	
-		
     matrices: {
         projection: new J3DIMatrix4(),
         viewing: new J3DIMatrix4(),
@@ -341,7 +388,7 @@ var webgl = {
                 this.texCoordsLocation = gl.getAttribLocation(program, "texCoords"),
                 // set uniform
                 gl.uniform1i(this.textureLocation, 0);
-				gl.uniform3f(this.lightDirLocation, 0.2, 0.2, 0.2);
+				gl.uniform3f(this.lightDirLocation, 0.3, 0.3, 0.3);
                 this.loaded = true;
             },
             use: function () {
@@ -434,7 +481,7 @@ var webgl = {
                 this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
                 this.normalLocation       = gl.getAttribLocation(program, "normal"),
                 // set uniform
-                gl.uniform3f(this.lightDirLocation, 1, 1, 1);
+                gl.uniform3f(this.lightDirLocation, 0.3, 0.3, 0.3);
                 this.loaded = true;
             },
             use: function () {
