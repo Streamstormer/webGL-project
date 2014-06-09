@@ -8,6 +8,10 @@ const float shininess = 0.25;
 uniform vec3 u_lightDir;
 varying vec3 v_normal;
 
+uniform sampler2D u_texture;
+
+varying vec2 v_texCoords;
+
 void main() {
     vec3 normal = normalize(v_normal);
     float diffuse = max(dot(normal, u_lightDir), 0.0);
@@ -20,6 +24,6 @@ void main() {
         vec3 reflection = normalize(reflect(-u_lightDir, normal));
         float spec = max(0.0, dot(normal, reflection));
         float specular = pow(spec, shininess);
-        gl_FragColor.rgb += specularMaterial * specular;
+        gl_FragColor.rgb += texture2D(u_texture, v_texCoords) + specularMaterial * specular;
     }
 }
