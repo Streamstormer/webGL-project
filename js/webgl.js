@@ -312,14 +312,19 @@ var webgl = {
             gl.vertexAttribPointer(shader.texCoordsLocation, 2, gl.FLOAT, false, 0, 0);
         }
         if (object.blending !== undefined && object.blending === true) {
-			gl.disable(gl.DEPTH_TEST);
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+			
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+			gl.blendColor(0.5,0.5,0.5,0.5)
             gl.enable(gl.BLEND);
+			gl.uniform1f(shader.alphaLocation, 0.8);
+			gl.disable(gl.DEPTH_TEST);
 			
 			//gl.blendEquation(gl.FUNC_ADD);
 			//gl.blendColor(1,1,1,0.5);
 
-        }
+        } else{
+			gl.uniform1f(shader.alphaLocation, 1.0);
+		}
 
         if (object.indexObject !== undefined && object.numIndices !== undefined && object.indexSize !== undefined) {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexObject);
@@ -327,8 +332,8 @@ var webgl = {
         }
         gl.bindTexture(gl.TEXTURE_2D, null);
         if (object.blending !== undefined && object.blending === true) {
-            gl.disable(gl.BLEND);
 			gl.enable(gl.DEPTH_TEST);
+			gl.disable(gl.BLEND);
         }
     },
     repaintLoop: {
@@ -383,13 +388,14 @@ var webgl = {
                 // resolve locations
 				this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
                 this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
-                this.mvpLocation       = gl.getUniformLocation(program, "modelViewProjection"),
-                this.textureLocation   = gl.getUniformLocation(program, "u_texture"),
-                this.vertexLocation    = gl.getAttribLocation(program, "vertex"),
-                this.texCoordsLocation = gl.getAttribLocation(program, "texCoords"),
+                this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
+                this.textureLocation      = gl.getUniformLocation(program, "u_texture"),
+                this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
+                this.texCoordsLocation    = gl.getAttribLocation(program, "texCoords"),
+				this.alphaLocation 		  = gl.getUniformLocation(program, "uAlpha");
                 // set uniform
                 gl.uniform1i(this.textureLocation, 0);
-				gl.uniform3f(this.lightDirLocation, 0.3, 0.3, 0.3);
+				gl.uniform3f(this.lightDirLocation, 0.5, 0.5, 0.5);
                 this.loaded = true;
             },
             use: function () {
@@ -402,6 +408,51 @@ var webgl = {
             shader.create.call(data);
         }, "html");
         $.get("shaders/texture/fragment.glsl", function(data, response) {
+			console.log(data)
+            shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
+            shader.create.call(shader);
+        }, "html");
+        return shader;
+    },
+	createTextureShaderWoAlpha: function() {
+        var gl = this.gl;
+        var shader = {
+            program: -1,
+            loaded: false,
+            mvpLocation: -1,
+            textureLocation: -1,
+            vertexLocation: -1,
+            texCoordsLocation: -1,
+            create: function() {
+                if (this.vertexShader === undefined || this.fragmentShader === undefined) {
+                    return;
+                }
+                var program = webgl.createProgram(this.vertexShader, this.fragmentShader);
+                this.program = program;
+                this.use();
+                // resolve locations
+				this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
+                this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
+                this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
+                this.textureLocation      = gl.getUniformLocation(program, "u_texture"),
+                this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
+                this.texCoordsLocation    = gl.getAttribLocation(program, "texCoords"),
+				//this.alphaLocation 		  = gl.getUniformLocation(program, "uAlpha");
+                // set uniform
+                gl.uniform1i(this.textureLocation, 0);
+				gl.uniform3f(this.lightDirLocation, 1.0, 1.0, 1.0);
+                this.loaded = true;
+            },
+            use: function () {
+                gl.useProgram(this.program);
+            }
+        };
+        $.get("shaders/texture/vertex.glsl", function(data, response) {
+			console.log(data)
+            shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
+            shader.create.call(data);
+        }, "html");
+        $.get("shaders/texture/fragmentWoAlpha.glsl", function(data, response) {
 			console.log(data)
             shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
             shader.create.call(shader);
@@ -812,7 +863,7 @@ var webgl = {
 		});
         // setup the API
         canvas = document.getElementById(canvasName);
-        gl = canvas.getContext("experimental-webgl");
+        gl = canvas.getContext("experimental-webgl", {premultipliedAlpha: false});
         this.gl = gl;
         gl.viewport(0, 0, canvas.width, canvas.height);
 		
@@ -820,7 +871,7 @@ var webgl = {
         gl.clearColor(0.0, 0.0, 0.5, 0.5);
         gl.enable(gl.DEPTH_TEST);
         
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+		//gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 		//gl.colorMask(true, true, true, false); 
         this.systemInfo();
 		
@@ -832,7 +883,7 @@ var webgl = {
 
 
 
-		// particle objects
+		/*particle objects
 		var object = this.createParticelSystem(gl)
 		object.shader = this.createParticleShader();
 		object.loaded = true;
@@ -844,13 +895,14 @@ var webgl = {
             return model;
         };
 		this.objects[this.objects.length] = object;
-
+*/
 
 
 		// ground objects
 		var object = this.makeGround(gl)
 		object.indexSize = gl.UNSIGNED_BYTE;
         object.loaded = true;
+		object.blending = false;
 		//object.blending = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
         object.texture = loadImageTexture(gl, "textures/metall.jpg");
@@ -875,7 +927,7 @@ var webgl = {
 		// Disabled because of driver problems -> blending not functional in basis-application
 		object.blending = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
-        object.texture = loadImageTexture(gl, "textures/ogee-glass.png");
+        object.texture = loadImageTexture(gl, "textures/glas.jpg");
         object.angle = 0;
         object.shader = this.createTextureShader();
         object.update = function() {
