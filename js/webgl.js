@@ -830,6 +830,7 @@ var webgl = {
 
 
 
+<<<<<<< HEAD
 		// particle objects
 		var object = this.createParticelSystem(gl)
 		object.shader = this.createParticleShader();
@@ -842,6 +843,10 @@ var webgl = {
             return model;
         };
 		this.objects[this.objects.length] = object;
+=======
+
+
+>>>>>>> origin/master
 
 
 		// ground objects
@@ -886,6 +891,19 @@ var webgl = {
             return model;
         };
         this.objects[this.objects.length] = object;
+
+		// particle objects
+		var object = this.createParticelSystem(gl)
+		object.shader = this.createParticleShader();
+		object.loaded = true;
+		object.model = function() {
+            var model = new J3DIMatrix4();
+			model.perspective(50, 1.0, 1, 10000);
+			model.translate(2, 2, -10);
+            model.rotate(180, 1,1,0);
+            return model;
+        };
+		this.objects[this.objects.length] = object;
 
 		/*
         // and a teapot under light rotating in the opposite direction from the box
