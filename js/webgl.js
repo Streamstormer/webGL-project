@@ -757,7 +757,7 @@ var webgl = {
 
     createParticle: function () {
 	    var particle = {};
-        particle.position = [((Math.random()-.5)*.1), ((Math.random()-.5)*.1), ((Math.random()-.5)*.1)];
+        particle.position = [1, 1, 1];
         particle.velocity = [0, 0, 0];
         particle.color = [1.0, 0.0, 0.0, 1];
         particle.startTime = Math.random() * 30 + 1;
@@ -778,8 +778,8 @@ var webgl = {
         for (i=0; i<particles.length; i++) {
         	var particle = particles[i];
         	vertices.push(particle.position[1]);
-            vertices.push(particle.position[2]);
-            vertices.push(particle.position[3]);
+            //vertices.push(particle.position[2]);
+            //vertices.push(particle.position[3]);
            	velocities.push(particle.velocity[0]);
             velocities.push(particle.velocity[1]);
             velocities.push(particle.velocity[2]);
@@ -859,7 +859,7 @@ var webgl = {
 			model.scale(1.6,1.2,1.8)
 			//model.perspective(30, 1.0, 1, 10000)
             //model.translate(0.0, -20.0, 0.0);
-           // model.rotate(0.0, 0.0, 1.0, 0.0);;
+            //model.rotate(0.0, 0.0, 1.0, 0.0);;
 			return model
 		};
         this.objects[this.objects.length] = object;
