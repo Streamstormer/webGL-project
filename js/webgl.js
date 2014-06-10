@@ -837,8 +837,8 @@ var webgl = {
 		object.loaded = true;
 		object.model = function() {
             var model = new J3DIMatrix4();
-			model.perspective(50, 1.0, 1, 10000);
-			model.translate(2, 2, -10);
+			model.perspective(30, 0.8, 1, 1000);
+			model.translate(4, 4, -10);
             model.rotate(180, 1,1,0);
             return model;
         };
@@ -897,7 +897,7 @@ var webgl = {
             var model = new J3DIMatrix4();
 			model.perspective(50, 1.0, 1, 10000);
 			model.translate(2, 2, -10);
-            model.rotate(180, 1,1,0);
+            model.rotate(90, 0.8,0.5,0);
             return model;
         };
 		this.objects[this.objects.length] = object;
