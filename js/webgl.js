@@ -725,11 +725,41 @@ var webgl = {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
         return vbo;
     },
+	/*
+	createParticle: function () {
+		var particle = new Object();
+		if (this.position === undefined) {
+			this.position = [((Math.random()-.5)*.1),
+						((Math.random()-.5)*.1),
+						((Math.random()-.5)*.1),
+						];
+		}
+		if (particle.color === undefined) { particle.color = [1.0,0.0,0.0,0.5];}
+		
+		this.position = position;
+		this.color = color;
+		
+		this.velocity = [((Math.random()-.5)*.1),
+						((Math.random()-.5)*.1),
+						((Math.random()-.5)*.1),
+						];
+		if((Math.abs(this.velocity[0]) < 0.01) &&
+			(Math.abs(this.velocity[1]) < 0.01) &&
+			(Math.abs(this.velocity[2]) < 0.01)
+			)
+		{ //ensure particle is not stagnant
+		this.velocity[0] = 0.1;
+		}
+		this.age=0;
+		this.lifespan=20;
+		this.size=1.0;
+	},*/
+
     createParticle: function () {
 	    var particle = {};
-        particle.position = [Math.random(), Math.random(), Math.random()];
+        particle.position = [((Math.random()-.5)*.1), ((Math.random()-.5)*.1), ((Math.random()-.5)*.1)];
         particle.velocity = [0, 0, 0];
-        particle.color = [1, 1, 1, 1];
+        particle.color = [1.0, 0.0, 0.0, 1];
         particle.startTime = Math.random() * 30 + 1;
         particle.size = Math.random()*15 + 1;
         return particle;
@@ -771,6 +801,7 @@ var webgl = {
 		retval.particle = true;
 		return retval;
 	},
+
 	
     init: function (canvasName, vertexShaderName, fragmentShaderName) {
         var canvas, gl;
@@ -796,7 +827,6 @@ var webgl = {
 		
         // create the projection matrix
         this.matrices.init.call(this.matrices);
-
 
 
 
