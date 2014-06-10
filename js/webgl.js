@@ -778,8 +778,8 @@ var webgl = {
         for (i=0; i<particles.length; i++) {
         	var particle = particles[i];
         	vertices.push(particle.position[1]);
-            //vertices.push(particle.position[2]);
-            //vertices.push(particle.position[3]);
+            vertices.push(particle.position[2]);
+            vertices.push(particle.position[3]);
            	velocities.push(particle.velocity[0]);
             velocities.push(particle.velocity[1]);
             velocities.push(particle.velocity[2]);
