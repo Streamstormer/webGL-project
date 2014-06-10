@@ -313,10 +313,11 @@ var webgl = {
         }
         if (object.blending !== undefined && object.blending === true) {
 			gl.disable(gl.DEPTH_TEST);
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             gl.enable(gl.BLEND);
-			gl.blendFunc(gl.ONE, gl.GL_DST_ALPHA);
-			gl.blendEquation(gl.FUNC_ADD);
-			gl.blendColor(1,1,1,0.5);
+			
+			//gl.blendEquation(gl.FUNC_ADD);
+			//gl.blendColor(1,1,1,0.5);
 
         }
 
@@ -829,9 +830,9 @@ var webgl = {
         object.loaded = true;
 			
 		// Disabled because of driver problems -> blending not functional in basis-application
-		object.blending = false;
+		object.blending = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
-        object.texture = loadImageTexture(gl, "textures/glas.jpg");
+        object.texture = loadImageTexture(gl, "textures/ogee-glass.png");
         object.angle = 0;
         object.shader = this.createTextureShader();
         object.update = function() {
