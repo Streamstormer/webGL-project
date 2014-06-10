@@ -830,7 +830,7 @@ var webgl = {
 
 
 
-<<<<<<< HEAD
+
 		// particle objects
 		var object = this.createParticelSystem(gl)
 		object.shader = this.createParticleShader();
@@ -843,10 +843,7 @@ var webgl = {
             return model;
         };
 		this.objects[this.objects.length] = object;
-=======
 
-
->>>>>>> origin/master
 
 
 		// ground objects
