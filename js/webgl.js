@@ -5,6 +5,7 @@ var webgl = {
     objects: [],
 	time: 0.0,
 	life: 250,
+	objectAngle: 0,
 
 	elements: {
 		HYDRO: -25,
@@ -139,7 +140,13 @@ var webgl = {
             this.projection = new J3DIMatrix4();
             this.viewing = new J3DIMatrix4();
             this.init();
-        }
+        },
+		rotateObjectsLeft: function() {
+			webgl.objectAngle = (webgl.objectAngle - 1) % 360;
+		},
+		rotateObjectsRight: function() {
+			webgl.objectAngle = (webgl.objectAngle + 1) % 360;
+		},
     },
     /**
      * This message checks whether one of the error flags is set and
@@ -326,6 +333,11 @@ var webgl = {
 			gl.uniform1f(shader.alphaLocation, 1.0);
 		}
 
+		if(object.culling !== undefined && object.culling === true) {
+					gl.enable(gl.CULL_FACE);
+					gl.cullFace(gl.FRONT);
+		}
+
         if (object.indexObject !== undefined && object.numIndices !== undefined && object.indexSize !== undefined) {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.indexObject);
             gl.drawElements(gl.TRIANGLES, object.numIndices, object.indexSize, 0);
@@ -335,6 +347,10 @@ var webgl = {
 			gl.enable(gl.DEPTH_TEST);
 			gl.disable(gl.BLEND);
         }
+
+		if(object.culling !== undefined && object.culling === true) {
+			gl.disable(gl.CULL_FACE);
+		}
     },
     repaintLoop: {
         frameRendering: false,
@@ -378,6 +394,8 @@ var webgl = {
             textureLocation: -1,
             vertexLocation: -1,
             texCoordsLocation: -1,
+			lightDirLocation: -1,
+			lightDirLocation2: -1,
             create: function() {
                 if (this.vertexShader === undefined || this.fragmentShader === undefined) {
                     return;
@@ -388,6 +406,7 @@ var webgl = {
                 // resolve locations
 				this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
                 this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
+				//this.lightDirLocation2     = gl.getUniformLocation(program, "u_lightDir2"),
                 this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
                 this.textureLocation      = gl.getUniformLocation(program, "u_texture"),
                 this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
@@ -396,6 +415,7 @@ var webgl = {
                 // set uniform
                 gl.uniform1i(this.textureLocation, 0);
 				gl.uniform3f(this.lightDirLocation, 0.5, 0.5, 0.5);
+				//gl.uniform3f(this.lightDirLocation, 0.5, 0.5, 0.5);
                 this.loaded = true;
             },
             use: function () {
@@ -608,14 +628,16 @@ var webgl = {
                 if (event.shiftKey) {
                     m.rotateZAxis.call(m, 1);
                 } else {
-                    m.moveLeft.call(m);
+                    //m.moveLeft.call(m);
+					m.rotateObjectsLeft.call(m);
                 }
                 break;
             case 37:
                 if (event.shiftKey) {
                     m.rotateZAxis.call(m, -1);
                 } else {
-                    m.moveRight.call(m);
+                    //m.moveRight.call(m);
+					m.rotateObjectsRight.call(m);
                 }
                 break;
             case 38:
@@ -870,6 +892,7 @@ var webgl = {
 		
         gl.clearColor(0.0, 0.0, 0.5, 0.5);
         gl.enable(gl.DEPTH_TEST);
+
         
 		//gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
 		//gl.colorMask(true, true, true, false); 
@@ -903,6 +926,9 @@ var webgl = {
 		object.indexSize = gl.UNSIGNED_BYTE;
         object.loaded = true;
 		object.blending = false;
+		// Enable Front Face Culling
+		object.culling = true;
+		object.ortho = true;
 		//object.blending = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
         object.texture = loadImageTexture(gl, "textures/metall.jpg");
@@ -910,6 +936,7 @@ var webgl = {
 		object.model = function() {
             var model = new J3DIMatrix4();	
 			model.scale(1.6,1.2,1.8)
+			model.rotate(webgl.objectAngle, 0.0, 1.0, 0.0);
 			//model.perspective(30, 1.0, 1, 10000)
             //model.translate(0.0, -20.0, 0.0);
             //model.rotate(0.0, 0.0, 1.0, 0.0);;
@@ -928,15 +955,15 @@ var webgl = {
 		object.blending = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
         object.texture = loadImageTexture(gl, "textures/glas.jpg");
-        object.angle = 0;
         object.shader = this.createTextureShader();
-        object.update = function() {
-            this.angle = (this.angle + 1) % 360;
-        };
+        //object.update = function() {
+        //    this.angle = (this.angle + 1) % 360;
+        //};
         object.model = function() {
             var model = new J3DIMatrix4();
 			model.scale(0.5,0.5,0.5)
 			model.translate(0,-1.39,0);
+			model.rotate(webgl.objectAngle, 0.0, 1.0, 0.0);
             //model.rotate(this.angle, 0.0, 1.0, 0.0);
             return model;
         };

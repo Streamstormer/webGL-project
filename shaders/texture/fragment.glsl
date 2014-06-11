@@ -3,6 +3,7 @@ uniform sampler2D u_texture;
 
 varying vec2 v_texCoords;
 varying float v_Dot;
+//varying float v_Dot2;
 
 uniform float uAlpha;
 
