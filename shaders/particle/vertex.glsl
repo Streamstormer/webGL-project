@@ -12,13 +12,10 @@ varying vec4 v_color;
 void main() {
     vec4 v = vertex;
     float t = u_time - startTime;
-    if (t >= 0.0) {
-        v_color = initialColor;
-        v.xyz += t * velocity;
-        v.y -= 9.81 * t * t;
-        gl_PointSize = size;
-    } else {
-        v_color = vec4(0.0);
-    }
+
+    v_color = initialColor;
+    v.xyz += t * velocity;
+    v.y -= 9.81 * t * t;
+    gl_PointSize = size;
     gl_Position = modelViewProjection * v;
 }

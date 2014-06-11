@@ -368,7 +368,7 @@ var webgl = {
                     }
                     object.update.call(object);
                 }
-				this.time += 16/1000;
+				webgl.time += 16/1000;
                 webgl.displayFunc.call(webgl);
                 webgl.repaintLoop.frameRendering = false;
             }, 16); // 16
@@ -832,8 +832,8 @@ var webgl = {
     createParticle: function () {
 	    var particle = {};
         particle.position = [1, 1, 1];
-        particle.velocity = [0, 0, 0];
-        particle.color = [1.0, 0.0, 0.0, 1];
+		particle.velocity = [-Math.random(), -Math.random(), Math.random()];
+        particle.color = [Math.random(), Math.random(), Math.random(), Math.random()];
         particle.startTime = Math.random() * 30 + 1;
         particle.size = Math.random()*15 + 1;
         return particle;
@@ -851,9 +851,9 @@ var webgl = {
 
         for (i=0; i<particles.length; i++) {
         	var particle = particles[i];
-        	vertices.push(particle.position[1]);
+        	vertices.push(particle.position[0]);
+            vertices.push(particle.position[1]);
             vertices.push(particle.position[2]);
-            vertices.push(particle.position[3]);
            	velocities.push(particle.velocity[0]);
             velocities.push(particle.velocity[1]);
             velocities.push(particle.velocity[2]);
@@ -869,7 +869,7 @@ var webgl = {
         retval.vertexObject = this.createBuffer(gl, vertices);
         retval.velocityObject = this.createBuffer(gl, velocities);
         retval.colorObject = this.createBuffer(gl, colors);
-        retval.startTimesObject = this.createBuffer(gl, startTimes);
+        retval.startTimeObject = this.createBuffer(gl, startTimes);
         retval.sizeObject = this.createBuffer(gl, sizes);
 
 		retval.particle = true;
@@ -1004,9 +1004,11 @@ var webgl = {
 		object.loaded = true;
 		object.model = function() {
             var model = new J3DIMatrix4();
-			model.perspective(50, 1.0, 1, 10000);
-			model.translate(2, 2, -10);
-            model.rotate(90, 0.8,0.5,0);
+			model.translate(-1.0,-1.39,-1.0);
+			model.rotate(webgl.objectAngle, 0.0, 1.0, 0.0);
+			//model.perspective(50, 1.0, 1, 10000);
+			//model.translate(2, 2, -10);
+            //model.rotate(90, 0.8,0.5,0);
             return model;
         };
 		this.objects[this.objects.length] = object;
