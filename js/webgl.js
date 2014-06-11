@@ -425,7 +425,7 @@ var webgl = {
         $.get("shaders/texture/vertex.glsl", function(data, response) {
 			console.log(data)
             shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
-            shader.create.call(data);
+            shader.create.call(shader);
         }, "html");
         $.get("shaders/texture/fragment.glsl", function(data, response) {
 			console.log(data)
@@ -876,6 +876,35 @@ var webgl = {
 		return retval;
 	},
 
+
+
+	loadTexture: function(gl, path, object)
+	{
+		var texture = gl.createTexture();
+		var image = new Image();
+		g_loadingImages.push(image);
+		image.onload = function() { webgl.doLoadTexture.call(webgl, gl, image, texture, object) }
+		image.src = path;
+		return texture;
+	},
+
+	doLoadTexture: function(gl, image, texture, object)
+	{
+		g_loadingImages.splice(g_loadingImages.indexOf(image), 1);
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+		// Set Texture Parameter
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+
+		// Set texture loaded
+		object.loaded = true;
+	},
+
 	
     init: function (canvasName, vertexShaderName, fragmentShaderName) {
         var canvas, gl;
@@ -924,14 +953,14 @@ var webgl = {
 		// ground objects
 		var object = this.makeGround(gl)
 		object.indexSize = gl.UNSIGNED_BYTE;
-        object.loaded = true;
+        //object.loaded = true;
 		object.blending = false;
 		// Enable Front Face Culling
 		object.culling = true;
 		object.ortho = true;
 		//object.blending = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
-        object.texture = loadImageTexture(gl, "textures/metall.jpg");
+        object.texture = this.loadTexture.call(webgl, gl, "textures/metall.jpg", object);
         object.shader = this.createTextureShader();
 		object.model = function() {
             var model = new J3DIMatrix4();	
@@ -949,12 +978,12 @@ var webgl = {
         // first a box, textured with a wood texture, which rotates around the y axis
         object = this.makeOpenBox(gl);
         object.indexSize = gl.UNSIGNED_BYTE;
-        object.loaded = true;
+        //object.loaded = true;
 			
 		// Disabled because of driver problems -> blending not functional in basis-application
 		object.blending = true;
         // TODO: change texture functionality so that it does not render the object before texture is loaded
-        object.texture = loadImageTexture(gl, "textures/glas.jpg");
+        object.texture = this.loadTexture.call(webgl, gl, "textures/glas.jpg", object);
         object.shader = this.createTextureShader();
         //object.update = function() {
         //    this.angle = (this.angle + 1) % 360;
