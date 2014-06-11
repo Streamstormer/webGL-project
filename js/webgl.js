@@ -17,7 +17,6 @@ var webgl = {
 		MAGNESIUM: -20,
 		OXID: -5,
 		select: function() {
-			//console.log(.Object.getOwnPropertyNames())
 			var select = document.getElementById("select");
 			var value = select.selectedIndex;
 			
@@ -303,10 +302,7 @@ var webgl = {
 		if(object.particle == true) {
 			gl.drawArrays(gl.POINTS, 0, object.particleObject.length);	
 		}
-
 		// End: particle related Attributes
-
-
 
         if (shader.normalLocation !== undefined && object.normalObject !== undefined) {
             gl.enableVertexAttribArray(shader.normalLocation);
@@ -319,16 +315,11 @@ var webgl = {
             gl.vertexAttribPointer(shader.texCoordsLocation, 2, gl.FLOAT, false, 0, 0);
         }
         if (object.blending !== undefined && object.blending === true) {
-			
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 			gl.blendColor(0.5,0.5,0.5,0.5)
             gl.enable(gl.BLEND);
 			gl.uniform1f(shader.alphaLocation, 0.8);
 			gl.disable(gl.DEPTH_TEST);
-			
-			//gl.blendEquation(gl.FUNC_ADD);
-			//gl.blendColor(1,1,1,0.5);
-
         } else{
 			gl.uniform1f(shader.alphaLocation, 1.0);
 		}
@@ -385,7 +376,7 @@ var webgl = {
         webgl.checkError("create shader " + source);
         return shader;
     },
-    createTextureShader: function() {
+    createObjectShader: function() {
         var gl = this.gl;
         var shader = {
             program: -1,
@@ -406,7 +397,6 @@ var webgl = {
                 // resolve locations
 				this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
                 this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
-				//this.lightDirLocation2     = gl.getUniformLocation(program, "u_lightDir2"),
                 this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
                 this.textureLocation      = gl.getUniformLocation(program, "u_texture"),
                 this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
@@ -415,7 +405,6 @@ var webgl = {
                 // set uniform
                 gl.uniform1i(this.textureLocation, 0);
 				gl.uniform3f(this.lightDirLocation, 0.5, 0.5, 0.5);
-				//gl.uniform3f(this.lightDirLocation, 0.5, 0.5, 0.5);
                 this.loaded = true;
             },
             use: function () {
@@ -423,57 +412,10 @@ var webgl = {
             }
         };
         $.get("shaders/texture/vertex.glsl", function(data, response) {
-			console.log(data)
             shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
             shader.create.call(shader);
         }, "html");
         $.get("shaders/texture/fragment.glsl", function(data, response) {
-			console.log(data)
-            shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
-            shader.create.call(shader);
-        }, "html");
-        return shader;
-    },
-	createTextureShaderWoAlpha: function() {
-        var gl = this.gl;
-        var shader = {
-            program: -1,
-            loaded: false,
-            mvpLocation: -1,
-            textureLocation: -1,
-            vertexLocation: -1,
-            texCoordsLocation: -1,
-            create: function() {
-                if (this.vertexShader === undefined || this.fragmentShader === undefined) {
-                    return;
-                }
-                var program = webgl.createProgram(this.vertexShader, this.fragmentShader);
-                this.program = program;
-                this.use();
-                // resolve locations
-				this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
-                this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
-                this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
-                this.textureLocation      = gl.getUniformLocation(program, "u_texture"),
-                this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
-                this.texCoordsLocation    = gl.getAttribLocation(program, "texCoords"),
-				//this.alphaLocation 		  = gl.getUniformLocation(program, "uAlpha");
-                // set uniform
-                gl.uniform1i(this.textureLocation, 0);
-				gl.uniform3f(this.lightDirLocation, 1.0, 1.0, 1.0);
-                this.loaded = true;
-            },
-            use: function () {
-                gl.useProgram(this.program);
-            }
-        };
-        $.get("shaders/texture/vertex.glsl", function(data, response) {
-			console.log(data)
-            shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
-            shader.create.call(data);
-        }, "html");
-        $.get("shaders/texture/fragmentWoAlpha.glsl", function(data, response) {
-			console.log(data)
             shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
             shader.create.call(shader);
         }, "html");
@@ -485,10 +427,7 @@ var webgl = {
             program: -1,
             loaded: false,
             mvpLocation: -1,
-           // normalMatrixLocation: -1,
-           // lightDirLocation: -1,
             vertexLocation: -1,
-           // normalLocation: -1,
 			create: function() {
 				if (this.vertexShader === undefined || this.fragmentShader === undefined) {
            			return;
@@ -517,103 +456,15 @@ var webgl = {
 		};
         $.get("shaders/particle/vertex.glsl", function(data) {
             shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
-			console.log("loaded!");
             shader.create.call(shader);
         }, "html");
         $.get("shaders/particle/fragment.glsl", function(data) {
             shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
-			console.log("loaded!");
             shader.create.call(shader);
         }, "html");
         return shader;
 	},	
-    createLightShader: function() {
-        var gl = this.gl;
-        var shader = {
-            program: -1,
-            loaded: false,
-            mvpLocation: -1,
-            normalMatrixLocation: -1,
-            lightDirLocation: -1,
-            vertexLocation: -1,
-            normalLocation: -1,
-            create: function() {
-                if (this.vertexShader === undefined || this.fragmentShader === undefined) {
-                    return;
-                }
-                var program = webgl.createProgram(this.vertexShader, this.fragmentShader);
-                this.program = program;
-                this.use();
-                // resolve locations
-				this.textureLocation   = gl.getUniformLocation(program, "u_texture"),
-				this.textureLocation   = gl.getUniformLocation(program, "u_texture"),
-                this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
-                this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
-                this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
-                this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
-                this.normalLocation       = gl.getAttribLocation(program, "normal"),
-                // set uniform
-                gl.uniform3f(this.lightDirLocation, 0.3, 0.3, 0.3);
-                this.loaded = true;
-            },
-            use: function () {
-                gl.useProgram(this.program);
-            }
-        };
-        $.get("shaders/light/vertex.glsl", function(data) {
-            shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
-            shader.create.call(shader);
-        }, "html");
-        $.get("shaders/light/fragment.glsl", function(data) {
-            shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
-            shader.create.call(shader);
-        }, "html");
-        return shader;
-    },
-    createColorShader: function() {
-        var gl = this.gl;
-        var shader = {
-            loaded: false,
-            program: -1,
-            mvpLocation: -1,
-            colorLocation: -1,
-            vertexLocation: -1,
-            create: function() {
-                if (this.vertexShader === undefined || this.fragmentShader === undefined) {
-                    return;
-                }
-                var program = webgl.createProgram(this.vertexShader, this.fragmentShader);
-                this.program = program;
-                this.use();
-                // resolve locations
-                this.mvpLocation    = gl.getUniformLocation(program, "modelViewProjection");
-                this.colorLocation  = gl.getUniformLocation(program, "u_color");
-                this.vertexLocation = gl.getAttribLocation(program, "vertex");
-                // set uniform
-                gl.uniform4f(this.colorLocation, Math.random(), Math.random(), Math.random(), 0.5);
-                this.loaded = true;
-            },
-            use: function () {
-                gl.useProgram(this.program);
-            }
-        };
-        $.get("shaders/color/vertex.glsl", function(data) {
-            shader.vertexShader = webgl.createShader(webgl.gl, webgl.gl.VERTEX_SHADER, data);
-            shader.create.call(shader);
-        }, "html");
-        $.get("shaders/color/fragment.glsl", function(data) {
-            shader.fragmentShader = webgl.createShader(webgl.gl, webgl.gl.FRAGMENT_SHADER, data);
-            shader.create.call(shader);
-        }, "html");
-        setInterval(function () {
-            if (!shader.loaded) {
-                return;
-            }
-            shader.use();
-            gl.uniform4f(shader.colorLocation, Math.random(), Math.random(), Math.random(), 0.5);
-            }, 10000);
-        return shader;
-    },
+
     setupKeyHandler: function() {
 		var m = this.matrices;
         $("body").keydown(function (event) {
@@ -661,173 +512,94 @@ var webgl = {
         });
 		},
 	makeGround: function (gl){
-    var vertices = new Float32Array(
-        [  -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1    // v0-v1-v2-v3 front
-              // v0-v5-v6-v1 top
-             // v1-v6-v7-v2 left
-             // v7-v4-v3-v2 bottom
-           ]   // v4-v7-v6-v5 back
-    );
+		var buffer = { };
 
-    // normal array
-    var normals = new Float32Array(
-        [  0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0     // v0-v1-v2-v3 front
-               // v0-v5-v6-v1 top
-               // v1-v6-v7-v2 left
-               // v7-v4-v3-v2 bottom
-            ]    // v4-v7-v6-v5 back
-       );
+		// vertices array
+    	var vertices =
+        	[  -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1 ];
+    	// normal array
+    	var normals =
+        	[  0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0 ];
 
+    	// texCoord array
+    	var texCoords =
+       		[  0, 0,   1, 0,   1, 1,   0, 1 ];
 
-    // texCoord array
-    var texCoords = new Float32Array(
-        [  0, 0,   1, 0,   1, 1,   0, 1    // v0-v1-v2-v3 front
-             // v0-v5-v6-v1 top
-               // v1-v6-v7-v2 left
-              // v7-v4-v3-v2 bottom
-           ]   // v4-v7-v6-v5 back
-       );
+   		// index array
+    	var indices = 
+        	[  0, 1, 2,   0, 2, 3  ];
+	
+		buffer.vertexObject = this.createBuffer_f32(gl, vertices);
+		buffer.texCoordObject = this.createBuffer_f32(gl, texCoords);
+		buffer.normalObject = this.createBuffer_f32(gl,normals);
+		buffer.indexObject = this.createBuffer_ui8(gl, indices);
 
-    // index array
-    var indices = new Uint8Array(
-        [  0, 1, 2,   0, 2, 3    // front
-              // top
-              // left
-             // bottom
-          ]   // back
-      );
+		buffer.numIndices = indices.length;
 
-
-		var retval = { };
-
-		retval.normalObject = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, retval.normalObject);
-		gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
-
-		retval.texCoordObject = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, retval.texCoordObject);
-		gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-
-		retval.vertexObject = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, retval.vertexObject);
-		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-		retval.indexObject = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, retval.indexObject);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-		retval.numIndices = indices.length;
-
-		console.log(indices.length);
-
-		return retval;
+		return buffer;
 	},
 	makeOpenBox: function (gl){
-		   var vertices = new Float32Array(
-        [  1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,    // v0-v1-v2-v3 front
-           1, 1, 1,   1,-1, 1,   1,-1,-1,   1, 1,-1,    // v0-v3-v4-v5 right
-           1, 1, 1,   1, 1,-1,  -1, 1,-1,  -1, 1, 1,    // v0-v5-v6-v1 top
-          -1, 1, 1,  -1, 1,-1,  -1,-1,-1,  -1,-1, 1,    // v1-v6-v7-v2 left
-          -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1,    // v7-v4-v3-v2 bottom
-           1,-1,-1,  -1,-1,-1,  -1, 1,-1,   1, 1,-1 ]   // v4-v7-v6-v5 back
-    );
+		var buffer = { };
 
-    // normal array
-    var normals = new Float32Array(
-        [  0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     // v0-v1-v2-v3 front
-           1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,     // v0-v3-v4-v5 right
-           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     // v0-v5-v6-v1 top
-          -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,     // v1-v6-v7-v2 left
-           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // v7-v4-v3-v2 bottom
-           0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 ]    // v4-v7-v6-v5 back
-       );
+		// vertices array
+		var vertices = 
+	        [  1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,    // v0-v1-v2-v3 front
+	           1, 1, 1,   1,-1, 1,   1,-1,-1,   1, 1,-1,    // v0-v3-v4-v5 right
+	           1, 1, 1,   1, 1,-1,  -1, 1,-1,  -1, 1, 1,    // v0-v5-v6-v1 top
+	          -1, 1, 1,  -1, 1,-1,  -1,-1,-1,  -1,-1, 1,    // v1-v6-v7-v2 left
+	          -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1,    // v7-v4-v3-v2 bottom
+	           1,-1,-1,  -1,-1,-1,  -1, 1,-1,   1, 1,-1 ];  // v4-v7-v6-v5 back
 
+	   	// normal array
+	   	var normals =
+	        [  0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     // v0-v1-v2-v3 front
+	           1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,     // v0-v3-v4-v5 right
+	           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     // v0-v5-v6-v1 top
+	          -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,     // v1-v6-v7-v2 left
+	           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // v7-v4-v3-v2 bottom
+	           0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 ];   // v4-v7-v6-v5 back
 
-    // texCoord array
-    var texCoords = new Float32Array(
-        [  1, 1,   0, 1,   0, 0,   1, 0,    // v0-v1-v2-v3 front
-           0, 1,   0, 0,   1, 0,   1, 1,    // v0-v3-v4-v5 right
-           1, 0,   1, 1,   0, 1,   0, 0,    // v0-v5-v6-v1 top
-           1, 1,   0, 1,   0, 0,   1, 0,    // v1-v6-v7-v2 left
-           0, 0,   1, 0,   1, 1,   0, 1,    // v7-v4-v3-v2 bottom
-           0, 0,   1, 0,   1, 1,   0, 1 ]   // v4-v7-v6-v5 back
-       );
+    	// texCoord array
+    	var texCoords =
+        	[  1, 1,   0, 1,   0, 0,   1, 0,    // v0-v1-v2-v3 front
+        	   0, 1,   0, 0,   1, 0,   1, 1,    // v0-v3-v4-v5 right
+        	   1, 0,   1, 1,   0, 1,   0, 0,    // v0-v5-v6-v1 top
+        	   1, 1,   0, 1,   0, 0,   1, 0,    // v1-v6-v7-v2 left
+        	   0, 0,   1, 0,   1, 1,   0, 1,    // v7-v4-v3-v2 bottom
+        	   0, 0,   1, 0,   1, 1,   0, 1 ];  // v4-v7-v6-v5 back
 
-    // index array
-    var indices = new Uint8Array(
-        [  0, 1, 2,   0, 2, 3,    // front
-           4, 5, 6,   4, 6, 7,    // right
-           
-          12,13,14,  12,14,15,    // left
-          16,17,18,  16,18,19,    // bottom
-          20,21,22,  20,22,23 ]   // back
-      );
+    	// index array
+    	var indices =
+			[   0, 1, 2,   0, 2, 3,    // front
+				4, 5, 6,   4, 6, 7,    // right   
+				12,13,14,  12,14,15,    // left
+				16,17,18,  16,18,19,    // bottom
+          		20,21,22,  20,22,23 ];   // back
 
+		buffer.vertexObject = this.createBuffer_f32(gl, vertices);
+		buffer.texCoordObject = this.createBuffer_f32(gl, texCoords);
+		buffer.normalObject = this.createBuffer_f32(gl,normals);
+		buffer.indexObject = this.createBuffer_ui8(gl, indices);
 
-		var retval = { };
-		retval.normalObject = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, retval.normalObject);
-		gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+		buffer.numIndices = indices.length;
 
-		retval.texCoordObject = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, retval.texCoordObject);
-		gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-
-		retval.vertexObject = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, retval.vertexObject);
-		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-		retval.indexObject = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, retval.indexObject);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-		retval.numIndices = indices.length;
-
-		console.log(indices.length);
-
-		return retval;
+		return buffer;
 	},
-    createBuffer: function (gl, vertices) {
+    createBuffer_f32: function (gl, data) {
 	    var vbo = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
         return vbo;
     },
-	/*
-	createParticle: function () {
-		var particle = new Object();
-		if (this.position === undefined) {
-			this.position = [((Math.random()-.5)*.1),
-						((Math.random()-.5)*.1),
-						((Math.random()-.5)*.1),
-						];
-		}
-		if (particle.color === undefined) { particle.color = [1.0,0.0,0.0,0.5];}
-		
-		this.position = position;
-		this.color = color;
-		
-		this.velocity = [((Math.random()-.5)*.1),
-						((Math.random()-.5)*.1),
-						((Math.random()-.5)*.1),
-						];
-		if((Math.abs(this.velocity[0]) < 0.01) &&
-			(Math.abs(this.velocity[1]) < 0.01) &&
-			(Math.abs(this.velocity[2]) < 0.01)
-			)
-		{ //ensure particle is not stagnant
-		this.velocity[0] = 0.1;
-		}
-		this.age=0;
-		this.lifespan=20;
-		this.size=1.0;
-	},*/
+
+	createBuffer_ui8: function (gl, data) {
+	    var vbo = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbo);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return vbo;
+    },
 
     createParticle: function () {
 	    var particle = {};
@@ -840,7 +612,7 @@ var webgl = {
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0; i<100; i++) {
+        for (var i=0; i<10000; i++) {
         	particles.push(this.createParticle());
         }
         var vertices = [];
@@ -864,16 +636,16 @@ var webgl = {
             startTimes.push(particle.startTime);
             sizes.push(particle.size);
         }
-		var retval = { };
-        retval.particleObject = particles;
-        retval.vertexObject = this.createBuffer(gl, vertices);
-        retval.velocityObject = this.createBuffer(gl, velocities);
-        retval.colorObject = this.createBuffer(gl, colors);
-        retval.startTimeObject = this.createBuffer(gl, startTimes);
-        retval.sizeObject = this.createBuffer(gl, sizes);
+		var buffer = { };
+        buffer.particleObject = particles;
+        buffer.vertexObject = this.createBuffer_f32(gl, vertices);
+        buffer.velocityObject = this.createBuffer_f32(gl, velocities);
+        buffer.colorObject = this.createBuffer_f32(gl, colors);
+        buffer.startTimeObject = this.createBuffer_f32(gl, startTimes);
+        buffer.sizeObject = this.createBuffer_f32(gl, sizes);
 
-		retval.particle = true;
-		return retval;
+		buffer.particle = true;
+		return buffer;
 	},
 
 
@@ -917,83 +689,50 @@ var webgl = {
         gl = canvas.getContext("experimental-webgl", {premultipliedAlpha: false});
         this.gl = gl;
         gl.viewport(0, 0, canvas.width, canvas.height);
-		
-		
-        gl.clearColor(0.0, 0.0, 0.5, 0.5);
+		// make background blue	
+        gl.clearColor(0.0, 0.0, 0.5, 0.7);
         gl.enable(gl.DEPTH_TEST);
-
-        
-		//gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-		//gl.colorMask(true, true, true, false); 
-        this.systemInfo();
-		
-			
-		
+ 
+        this.systemInfo();		
         // create the projection matrix
         this.matrices.init.call(this.matrices);
 
 
-
-
-		/*particle objects
-		var object = this.createParticelSystem(gl)
-		object.shader = this.createParticleShader();
-		object.loaded = true;
-		object.model = function() {
-            var model = new J3DIMatrix4();
-			model.perspective(30, 0.8, 1, 1000);
-			model.translate(4, 4, -10);
-            model.rotate(180, 1,1,0);
-            return model;
-        };
-		this.objects[this.objects.length] = object;
-*/
-
-
 		// ground objects
-		var object = this.makeGround(gl)
+		var object = this.makeGround.call(this, gl)
 		object.indexSize = gl.UNSIGNED_BYTE;
-        //object.loaded = true;
 		object.blending = false;
 		// Enable Front Face Culling
 		object.culling = true;
 		object.ortho = true;
-		//object.blending = true;
-        // TODO: change texture functionality so that it does not render the object before texture is loaded
-        object.texture = this.loadTexture.call(webgl, gl, "textures/metall.jpg", object);
-        object.shader = this.createTextureShader();
+
+        object.texture = this.loadTexture.call(this, gl, "textures/metall.jpg", object);
+        object.shader = this.createObjectShader();
 		object.model = function() {
             var model = new J3DIMatrix4();	
 			model.scale(1.6,1.2,1.8)
-			model.rotate(webgl.objectAngle, 0.0, 1.0, 0.0);
-			//model.perspective(30, 1.0, 1, 10000)
-            //model.translate(0.0, -20.0, 0.0);
-            //model.rotate(0.0, 0.0, 1.0, 0.0);;
+			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
+
 			return model
 		};
         this.objects[this.objects.length] = object;
 
 
-        // create some objects
-        // first a box, textured with a wood texture, which rotates around the y axis
-        object = this.makeOpenBox(gl);
+		// create a open box
+        object = this.makeOpenBox.call(this, gl);
         object.indexSize = gl.UNSIGNED_BYTE;
-        //object.loaded = true;
-			
-		// Disabled because of driver problems -> blending not functional in basis-application
+
+		// enable object blending
 		object.blending = true;
-        // TODO: change texture functionality so that it does not render the object before texture is loaded
-        object.texture = this.loadTexture.call(webgl, gl, "textures/glas.jpg", object);
-        object.shader = this.createTextureShader();
-        //object.update = function() {
-        //    this.angle = (this.angle + 1) % 360;
-        //};
+
+        object.texture = this.loadTexture.call(this, gl, "textures/glas.jpg", object);
+        object.shader = this.createObjectShader();
+
         object.model = function() {
             var model = new J3DIMatrix4();
 			model.scale(0.5,0.5,0.5)
 			model.translate(0,-1.39,0);
-			model.rotate(webgl.objectAngle, 0.0, 1.0, 0.0);
-            //model.rotate(this.angle, 0.0, 1.0, 0.0);
+			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
             return model;
         };
         this.objects[this.objects.length] = object;
@@ -1005,52 +744,14 @@ var webgl = {
 		object.model = function() {
             var model = new J3DIMatrix4();
 			model.translate(-1.0,-1.39,-1.0);
-			model.rotate(webgl.objectAngle, 0.0, 1.0, 0.0);
-			//model.perspective(50, 1.0, 1, 10000);
-			//model.translate(2, 2, -10);
-            //model.rotate(90, 0.8,0.5,0);
+			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
             return model;
         };
 		this.objects[this.objects.length] = object;
 
-		/*
-        // and a teapot under light rotating in the opposite direction from the box
-        object = loadObj(gl, "objects/teapot.obj");
-        object.indexSize = gl.UNSIGNED_SHORT;
-        object.shader = this.createLightShader();
-        object.angle = 0;
-        object.update = function() {
-            this.angle = (this.angle - 1) % 360;
-        };
-        object.model = function() {
-            var model = new J3DIMatrix4();
-            model.translate(0.0, -20.0, 0.0);
-            model.rotate(this.angle, 0.0, 1.0, 0.0);
-            return model;
-        };
-        this.objects[this.objects.length] = object;
-
-        // and another box which uses a color shader
-        object = makeBox(gl);
-        object.loaded = true;
-        object.blending = true;
-        object.indexSize = gl.UNSIGNED_BYTE;
-        object.shader = this.createColorShader();
-        object.angle = 0;
-        object.update = function() {
-            this.angle = (this.angle + 2) % 360;
-        };
-        object.model = function() {
-            var model = new J3DIMatrix4();
-            model.translate(0.0, -10.0, 20.0);
-            model.scale(1.5, 1.5, 1.5);
-            model.rotate(this.angle, 0.0, 0.0, 1.0);
-            return model;
-        };
-        this.objects[this.objects.length] = object;*/
 
         // setup animation
-       	this.repaintLoop.setup();
+       	this.repaintLoop.setup.call(this);
 
         // setup handlers
         this.setupKeyHandler();
@@ -1062,10 +763,6 @@ var webgl = {
         for (var i = 0; i < this.objects.length; i++) {
             var object, shader, modelView, normalMatrix, modelViewProjection;
             object = this.objects[i];
-
-		/*	if(object.particle && object.shader != undefined) {
-				console.log("display");
-			}*/
 
             if (object.shader === undefined) {
                 // no shader is set, cannot render
@@ -1081,7 +778,7 @@ var webgl = {
             modelViewProjection = new J3DIMatrix4(this.matrices.projection);
             modelView = new J3DIMatrix4(this.matrices.viewing);
             if (object.model !== undefined) {
-                modelView.multiply(object.model.call(object));
+                modelView.multiply(object.model.call(this));
             }
             modelViewProjection.multiply(modelView);
             if (shader.mvpLocation !== undefined) {
