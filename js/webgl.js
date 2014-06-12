@@ -294,10 +294,10 @@ var webgl = {
             gl.bindBuffer(gl.ARRAY_BUFFER, object.startTimeObject);
             gl.vertexAttribPointer(shader.startTimeLocation, 1, gl.FLOAT, false, 0, 0);
         }        
-		if (shader.sizeLocation !== undefined && object.sizeObject !== undefined) {
-            gl.enableVertexAttribArray(shader.sizeLocation);
-            gl.bindBuffer(gl.ARRAY_BUFFER, object.sizeObject);
-            gl.vertexAttribPointer(shader.sizeLocation, 1, gl.FLOAT, false, 0, 0);
+		if (shader.dirLocation !== undefined && object.dirObject !== undefined) {
+            gl.enableVertexAttribArray(shader.dirLocation);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.dirObject);
+            gl.vertexAttribPointer(shader.dirLocation, 1, gl.FLOAT, false, 0, 0);
         }
 		if(object.particle == true) {
 			gl.drawArrays(gl.POINTS, 0, object.particleObject.length);	
@@ -428,13 +428,14 @@ var webgl = {
             loaded: false,
             mvpLocation: -1,
             vertexLocation: -1,
+			dirLocation: -1,
 			create: function() {
 				if (this.vertexShader === undefined || this.fragmentShader === undefined) {
            			return;
         		}
 				var program = webgl.createProgram(this.vertexShader, this.fragmentShader);
             	this.program = program;
-            	this.use();;
+            	this.use();
                 var shader = {};
 				// resolve locations
 				this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
@@ -447,7 +448,7 @@ var webgl = {
                 this.velocityLocation     = gl.getAttribLocation(program, "velocity");
                 this.startTimeLocation    = gl.getAttribLocation(program, "startTime");
                 this.sizeLocation         = gl.getAttribLocation(program, "size");
-                
+                this.dirLocation 		  = gl.getAttribLocation(program, "dir");
                 this.loaded = true;
 	    	},
 			use: function () {
@@ -601,25 +602,57 @@ var webgl = {
         return vbo;
     },
 
-    createParticle: function () {
+    createParticle: function (dir) {
 	    var particle = {};
         particle.position = [1, 1, 1];
-		particle.velocity = [-Math.random(), -Math.random(), Math.random()];
-        particle.color = [Math.random(), Math.random(), Math.random(), Math.random()];
+		
+		switch(dir) {
+			case 0:
+				particle.velocity = [Math.random()*.1, Math.random()*.1, Math.random()*.1];
+				break;
+			case 1:
+				particle.velocity = [-Math.random()*.1, Math.random()*.1, Math.random()*.1];
+				break;			
+			case 2:
+				particle.velocity = [Math.random()*.1, -Math.random()*.1, Math.random()*.1];
+				break;
+			case 3:
+				particle.velocity = [Math.random()*.1, Math.random()*.1, -Math.random()*.1];
+				break;
+			case 4:
+				particle.velocity = [-Math.random()*.1, -Math.random()*.1, Math.random()*.1];
+				break;
+			case 5:
+				particle.velocity = [-Math.random()*.1, Math.random()*.1, -Math.random()*.1];
+				break;
+			case 6:
+				particle.velocity = [Math.random()*.1, -Math.random()*.1, -Math.random()*.1];
+				break;
+			case 7:
+				particle.velocity = [-Math.random()*.1, -Math.random()*.1, -Math.random()*.1];
+				break;
+			default:
+				console.log("Error - particle creation: Unknown Direction - " + dir);
+				break;			
+		}
+        particle.color = [1.0, 0.0, 0.0, 1.0];
         particle.startTime = Math.random() * 30 + 1;
-        particle.size = Math.random()*15 + 1;
+       	particle.dir = dir % 2;
         return particle;
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0; i<10000; i++) {
-        	particles.push(this.createParticle());
+        for (var i=0, dir=0; i<10000; i++, dir++) {
+			if(dir == 8) {
+				dir=0;
+			}
+        	particles.push(this.createParticle(dir));
         }
         var vertices = [];
         var velocities = [];
         var colors = [];
         var startTimes = [];
-        var sizes = [];
+        var dirs = [];
 
         for (i=0; i<particles.length; i++) {
         	var particle = particles[i];
@@ -634,7 +667,7 @@ var webgl = {
             colors.push(particle.color[2]);
             colors.push(particle.color[3]);
             startTimes.push(particle.startTime);
-            sizes.push(particle.size);
+            dirs.push(particle.dir);
         }
 		var buffer = { };
         buffer.particleObject = particles;
@@ -642,7 +675,7 @@ var webgl = {
         buffer.velocityObject = this.createBuffer_f32(gl, velocities);
         buffer.colorObject = this.createBuffer_f32(gl, colors);
         buffer.startTimeObject = this.createBuffer_f32(gl, startTimes);
-        buffer.sizeObject = this.createBuffer_f32(gl, sizes);
+        buffer.dirObject = this.createBuffer_ui8(gl, dirs);
 
 		buffer.particle = true;
 		return buffer;
@@ -741,6 +774,7 @@ var webgl = {
 		var object = this.createParticelSystem(gl)
 		object.shader = this.createParticleShader();
 		object.loaded = true;
+		object.blending = true;
 		object.model = function() {
             var model = new J3DIMatrix4();
 			model.translate(-1.0,-1.39,-1.0);
@@ -791,6 +825,7 @@ var webgl = {
                 normalMatrix.transpose();
                 normalMatrix.setUniform(gl, shader.normalMatrixLocation, false)
             }
+
             this.drawObject(gl, object, shader);
             this.checkError("drawObject: " + i);
         }
