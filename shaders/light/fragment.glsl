@@ -1,3 +1,4 @@
+
 precision highp float;
 
 const vec3 ambientMaterial = vec3(0.0, 0.0, 0.0);
@@ -27,3 +28,4 @@ void main() {
         gl_FragColor.rgb += texture2D(u_texture, v_texCoords) + specularMaterial * specular;
     }
 }
+

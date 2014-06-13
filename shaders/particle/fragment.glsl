@@ -7,5 +7,5 @@ void main() {
     if (v_color == vec4(0.0)) {
         discard;
     }
-    gl_FragColor += v_color.a*uAlpha;
+    gl_FragColor = v_color;
 }

@@ -1,3 +1,4 @@
+
 precision highp float;
 uniform mat4 modelViewProjection;
 uniform mat4 u_normalMatrix;
@@ -18,3 +19,4 @@ void main() {
     v_normal = transNormal.xyz;
     gl_Position = modelViewProjection * vertex;
 }
+

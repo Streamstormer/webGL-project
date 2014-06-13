@@ -1,28 +1,16 @@
 precision highp float;
 uniform sampler2D u_texture;
-
-varying vec2 v_texCoords;
-varying float v_Dot;
-//varying float v_Dot2;
-
 uniform float uAlpha;
 
+
+varying float v_diffuse;
+varying vec2 v_texCoords;
+
+
+
 void main() {
-	vec4 textureColor = texture2D(u_texture, vec2(v_texCoords.s, v_texCoords.t));
-	gl_FragColor = vec4(textureColor.rgb * v_Dot, textureColor.a * uAlpha);
+    vec4 color = texture2D(u_texture, v_texCoords);
+	color.a *=  uAlpha;
+	gl_FragColor = color * (vec4(v_diffuse)+ 0.8);
 
 }
-
-/*precision mediump float;
-
-  varying vec2 vTextureCoord;
-  varying vec3 vLightWeighting;
-
-  uniform float uAlpha;
-
-  uniform sampler2D uSampler;
-
-  void main(void) {
-     vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-     gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a * uAlpha);
-  }*/

@@ -1,11 +1,20 @@
 "use strict";
 
+/***
+* critical element webgl demo by Silke Rohn and Benedikt Klotz
+* Source is the Basis applikation.
+* Added and changed functionalities:
+* @Benedikt: Objects, Lighting,  particle systems, shader, blending and face culling
+* @Silke: particle system, ...
+*/
+
 var webgl = {
     gl: null,
     objects: [],
 	time: 0.0,
 	life: 250,
 	objectAngle: 0,
+	debug: true,
 
 	elements: {
 		HYDRO: -25,
@@ -280,7 +289,7 @@ var webgl = {
 
 		// start:particle related Attributes
         if (shader.colorLocation !== undefined && object.colorObject !== undefined) {
-            gl.enableVertexAttribArray(shader.colorLocation);
+			gl.enableVertexAttribArray(shader.colorLocation);
             gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
             gl.vertexAttribPointer(shader.colorLocation, 4, gl.FLOAT, false, 0, 0);
         }
@@ -296,7 +305,7 @@ var webgl = {
         }        
 		if (shader.dirLocation !== undefined && object.dirObject !== undefined) {
             gl.enableVertexAttribArray(shader.dirLocation);
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.dirObject);
+            gl.bindBuffer(gl.ARRAY_BUFFER, object.dirObject);
             gl.vertexAttribPointer(shader.dirLocation, 1, gl.FLOAT, false, 0, 0);
         }
 		if(object.particle == true) {
@@ -345,9 +354,9 @@ var webgl = {
     },
     repaintLoop: {
         frameRendering: false,
-        setup: function() {
-            setInterval(function () {
-                if (webgl.repaintLoop.frameRendering) {
+		setup: function() {
+            var render = function(){
+            	if (webgl.repaintLoop.frameRendering) {
                     return;
                 }
                 webgl.repaintLoop.frameRendering = true;
@@ -362,8 +371,13 @@ var webgl = {
 				webgl.time += 16/1000;
                 webgl.displayFunc.call(webgl);
                 webgl.repaintLoop.frameRendering = false;
-            }, 16); // 16
-        }
+				window.requestAnimFrame(render);
+            };
+			window.requestAnimFrame(render);
+			render();
+			
+			
+		},
     },
     createShader: function (gl, type, source) {
         var shader = gl.createShader(type);
@@ -386,7 +400,6 @@ var webgl = {
             vertexLocation: -1,
             texCoordsLocation: -1,
 			lightDirLocation: -1,
-			lightDirLocation2: -1,
             create: function() {
                 if (this.vertexShader === undefined || this.fragmentShader === undefined) {
                     return;
@@ -404,7 +417,7 @@ var webgl = {
 				this.alphaLocation 		  = gl.getUniformLocation(program, "uAlpha");
                 // set uniform
                 gl.uniform1i(this.textureLocation, 0);
-				gl.uniform3f(this.lightDirLocation, 0.5, 0.5, 0.5);
+				gl.uniform3f(this.lightDirLocation, 1.0, 1.0, 1.0);
                 this.loaded = true;
             },
             use: function () {
@@ -438,18 +451,23 @@ var webgl = {
             	this.use();
                 var shader = {};
 				// resolve locations
-				this.mvpLocation          = gl.getUniformLocation(program, "modelViewProjection"),
+				this.mvpLocation           = gl.getUniformLocation(program, "modelViewProjection"),
                 //this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
                 //this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
-				this.timeLocation 		  = gl.getUniformLocation(program, "u_time"); 
-                this.vertexLocation       = gl.getAttribLocation(program, "vertex"),
-				this.colorLocation		  = gl.getAttribLocation(program, "initialColor");
+				this.timeLocation 		   = gl.getUniformLocation(program, "u_time"),
+                this.vertexLocation        = gl.getAttribLocation(program, "vertex"),
+				this.boxVertexLocationF    = gl.getUniformLocation(program, "boxVertexFront"),
+				this.boxVertexLocationR	   = gl.getUniformLocation(program, "boxVertexRight"),
+				this.boxVertexLocationL    = gl.getUniformLocation(program, "boxVertexLeft"),
+				this.boxVertexLocationB    = gl.getUniformLocation(program, "boxVertexBack"),
+				this.colorLocation		   = gl.getAttribLocation(program, "initialColor"),
                 //this.normalLocation       = gl.getAttribLocation(program, "normal"),
-                this.velocityLocation     = gl.getAttribLocation(program, "velocity");
-                this.startTimeLocation    = gl.getAttribLocation(program, "startTime");
-                this.sizeLocation         = gl.getAttribLocation(program, "size");
-                this.dirLocation 		  = gl.getAttribLocation(program, "dir");
+                this.velocityLocation      = gl.getAttribLocation(program, "velocity"),
+                this.startTimeLocation     = gl.getAttribLocation(program, "startTime"),
+                this.sizeLocation          = gl.getAttribLocation(program, "size"),
+                this.dirLocation 		   = gl.getAttribLocation(program, "dir");
                 this.loaded = true;
+
 	    	},
 			use: function () {
                 gl.useProgram(this.program);
@@ -464,7 +482,7 @@ var webgl = {
             shader.create.call(shader);
         }, "html");
         return shader;
-	},	
+	},
 
     setupKeyHandler: function() {
 		var m = this.matrices;
@@ -577,6 +595,21 @@ var webgl = {
 				16,17,18,  16,18,19,    // bottom
           		20,21,22,  20,22,23 ];   // back
 
+		// setup vertices of box for collision detection in particle shader
+/*
+		for(var i = 0;i<6;i++) {
+			var array = new Float32Array(16);
+			for(var j = 1, step = 0;j<=16;) {
+				if(j % 4) {
+					// set w component
+					array[j*4] = 1;
+					step++;
+				} else{
+					array[j-step] = vertices
+				}
+			}
+		}*/
+
 		buffer.vertexObject = this.createBuffer_f32(gl, vertices);
 		buffer.texCoordObject = this.createBuffer_f32(gl, texCoords);
 		buffer.normalObject = this.createBuffer_f32(gl,normals);
@@ -593,6 +626,13 @@ var webgl = {
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
         return vbo;
     },
+    createBuffer_f32_d: function (gl, data) {
+	    var vbo = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.DYNAMIC_DRAW);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        return vbo;
+    },
 
 	createBuffer_ui8: function (gl, data) {
 	    var vbo = gl.createBuffer();
@@ -602,9 +642,10 @@ var webgl = {
         return vbo;
     },
 
-    createParticle: function (dir) {
+   createParticle: function (dir) {
 	    var particle = {};
         particle.position = [1, 1, 1];
+
 		
 		switch(dir) {
 			case 0:
@@ -635,14 +676,14 @@ var webgl = {
 				console.log("Error - particle creation: Unknown Direction - " + dir);
 				break;			
 		}
-        particle.color = [1.0, 0.0, 0.0, 1.0];
-        particle.startTime = Math.random() * 30 + 1;
-       	particle.dir = dir % 2;
+        particle.color = [0.0, 0.0, 0.0, 1.0];
+        particle.startTime = Math.random() * 10 + 1;
+       	particle.dir = 0;
         return particle;
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0, dir=0; i<10000; i++, dir++) {
+        for (var i=0, dir=0; i<100000; i++, dir++) {
 			if(dir == 8) {
 				dir=0;
 			}
@@ -674,8 +715,9 @@ var webgl = {
         buffer.vertexObject = this.createBuffer_f32(gl, vertices);
         buffer.velocityObject = this.createBuffer_f32(gl, velocities);
         buffer.colorObject = this.createBuffer_f32(gl, colors);
-        buffer.startTimeObject = this.createBuffer_f32(gl, startTimes);
-        buffer.dirObject = this.createBuffer_ui8(gl, dirs);
+        buffer.startTimeObject = this.createBuffer_f32_d(gl, startTimes);
+		buffer.startTimes = startTimes;
+        buffer.dirObject = this.createBuffer_f32(gl, dirs);
 
 		buffer.particle = true;
 		return buffer;
@@ -719,7 +761,7 @@ var webgl = {
 		});
         // setup the API
         canvas = document.getElementById(canvasName);
-        gl = canvas.getContext("experimental-webgl", {premultipliedAlpha: false});
+        gl = canvas.getContext("experimental-webgl",{premultipliedAlpha:false});
         this.gl = gl;
         gl.viewport(0, 0, canvas.width, canvas.height);
 		// make background blue	
@@ -734,6 +776,7 @@ var webgl = {
 		// ground objects
 		var object = this.makeGround.call(this, gl)
 		object.indexSize = gl.UNSIGNED_BYTE;
+		object.name = "ground";
 		object.blending = false;
 		// Enable Front Face Culling
 		object.culling = true;
@@ -754,6 +797,7 @@ var webgl = {
 		// create a open box
         object = this.makeOpenBox.call(this, gl);
         object.indexSize = gl.UNSIGNED_BYTE;
+		object.name = "box";
 
 		// enable object blending
 		object.blending = true;
@@ -774,13 +818,24 @@ var webgl = {
 		var object = this.createParticelSystem(gl)
 		object.shader = this.createParticleShader();
 		object.loaded = true;
-		object.blending = true;
+		object.blending = false;
 		object.model = function() {
             var model = new J3DIMatrix4();
-			model.translate(-1.0,-1.39,-1.0);
+			model.translate(-1.0,-1.7,-1.0);
 			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
             return model;
         };
+		setInterval(function() {
+			var particles = object.particleObject;
+			for (var i=0; i<particles.length; i++) {
+				if(object.startTimes[i] < webgl.time + 4.0) {
+					object.startTimes[i] += webgl.time; 
+				}
+					
+			}
+			gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.startTimes));
+			
+		}, 1000);
 		this.objects[this.objects.length] = object;
 
 

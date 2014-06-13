@@ -11,15 +11,11 @@ attribute vec2 texCoords;
 
 // passed out texCoords
 varying vec2 v_texCoords;
-varying float v_Dot;
-//varying float v_Dot2;
-
+varying float v_diffuse;
 
 void main() {
-    v_texCoords = texCoords;
-    gl_Position = modelViewProjection * vertex;
 	vec4 transNormal = u_normalMatrix * vec4(normal, 1);
-	v_Dot = max(dot(transNormal.xyz, u_lightDir), 0.0);
-//	v_Dot2 = max(dot(transNormal.xyz, u_lightDir2), 0.0);
-
+	v_diffuse = max(dot(u_lightDir, transNormal.xyz), 0.0);
+	v_texCoords = texCoords;
+	gl_Position = modelViewProjection * vertex;
 }
