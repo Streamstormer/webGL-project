@@ -17,7 +17,7 @@ var webgl = {
 	debug: true,
 
 	elements: {
-		HYDRO: -25,
+		HYDRO: -160,
 		KALIUM: -15,
 		TITAN: 35,
 		FERRUM: 10,
@@ -32,6 +32,19 @@ var webgl = {
 			switch(value) {
 				case 0:
 					webgl.life += this.FERRUM;
+					console.log("Life" + webgl.life);
+					console.log(webgl.objects[2].particleObject.length);
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
+						if (webgl.objects[2].particleObject[i].color[0] <= 0.9){
+							webgl.objects[2].particleObject[i].color[0] += 0.1;
+							webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,webgl.objects[2].colorObject);
+							webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
+							
+						}						
+					}
+					console.log("Farbe: " + webgl.objects[2].particleObject[999].color[0]);				
+					
+					
 					break;
 				case 1:
 					webgl.life += this.OXID;
@@ -839,6 +852,15 @@ var webgl = {
             };
             // do changes to object properties
             //....
+			/*var particles = object.particleObject;
+			for (var i=0; i<particles.length;i++){
+				if (webgl.life < 100){
+					object.colors[i][0]+=0.1;
+					console.log(object.colors[i][0]);
+					console.log("Life: " + webgl.life);
+					object.color = true;
+				}
+			}*/
                 
 
             if(changed.velocity){
