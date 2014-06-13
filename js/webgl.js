@@ -5,7 +5,7 @@
 * Source is the Basis applikation.
 * Added and changed functionalities:
 * @Benedikt: Objects, Lighting,  particle systems, shader, blending and face culling
-* @Silke: particle system, ...
+* @Silke: particle system
 */
 
 var webgl = {
@@ -838,6 +838,8 @@ var webgl = {
                 color: false,
             };
             // do changes to object properties
+            //....
+                
 
             if(changed.velocity){
                 gl.bindBuffer(gl.ARRAY_BUFFER, object.VelocityObject);
