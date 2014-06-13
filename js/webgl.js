@@ -324,8 +324,8 @@ var webgl = {
             gl.vertexAttribPointer(shader.texCoordsLocation, 2, gl.FLOAT, false, 0, 0);
         }
         if (object.blending !== undefined && object.blending === true) {
-			gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-			gl.blendColor(0.5,0.5,0.5,0.5)
+			gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // 
+			//gl.blendColor(1.0,1.0,1.0,1.0)
             gl.enable(gl.BLEND);
 			gl.uniform1f(shader.alphaLocation, 0.8);
 			gl.disable(gl.DEPTH_TEST);
@@ -818,7 +818,7 @@ var webgl = {
 		var object = this.createParticelSystem(gl)
 		object.shader = this.createParticleShader();
 		object.loaded = true;
-		object.blending = false;
+		object.blending = true;
 		object.model = function() {
             var model = new J3DIMatrix4();
 			model.translate(-1.0,-1.7,-1.0);
@@ -828,11 +828,12 @@ var webgl = {
 		setInterval(function() {
 			var particles = object.particleObject;
 			for (var i=0; i<particles.length; i++) {
-				if(object.startTimes[i] < webgl.time + 4.0) {
-					object.startTimes[i] += webgl.time; 
+				if(object.startTimes[i] + 7.0 <= webgl.time) {
+					object.startTimes[i] = webgl.time + 3.0*Math.random(); 
 				}
 					
 			}
+			gl.bindBuffer(gl.ARRAY_BUFFER,object.startTimeObject);
 			gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.startTimes));
 			
 		}, 1000);
