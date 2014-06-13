@@ -676,6 +676,7 @@ var webgl = {
 				console.log("Error - particle creation: Unknown Direction - " + dir);
 				break;			
 		}
+        // start with black particles
         particle.color = [0.0, 0.0, 0.0, 1.0];
         particle.startTime = Math.random() * 10 + 1;
        	particle.dir = 0;
@@ -710,14 +711,20 @@ var webgl = {
             startTimes.push(particle.startTime);
             dirs.push(particle.dir);
         }
+
+        // create gl Buffer for particles
 		var buffer = { };
         buffer.particleObject = particles;
         buffer.vertexObject = this.createBuffer_f32(gl, vertices);
         buffer.velocityObject = this.createBuffer_f32(gl, velocities);
         buffer.colorObject = this.createBuffer_f32(gl, colors);
         buffer.startTimeObject = this.createBuffer_f32_d(gl, startTimes);
-		buffer.startTimes = startTimes;
         buffer.dirObject = this.createBuffer_f32(gl, dirs);
+
+        // save object properties for update later
+        buffer.velocities = velocities;
+        buffer.startTimes = startTimes;
+        buffer.colors = colors;
 
 		buffer.particle = true;
 		return buffer;
@@ -765,7 +772,7 @@ var webgl = {
         this.gl = gl;
         gl.viewport(0, 0, canvas.width, canvas.height);
 		// make background blue	
-        gl.clearColor(0.0, 0.0, 0.5, 0.7);
+        gl.clearColor(0.0, 0.0, 0.5, 0.6);
         gl.enable(gl.DEPTH_TEST);
  
         this.systemInfo();		
@@ -780,7 +787,6 @@ var webgl = {
 		object.blending = false;
 		// Enable Front Face Culling
 		object.culling = true;
-		object.ortho = true;
 
         object.texture = this.loadTexture.call(this, gl, "textures/metall.jpg", object);
         object.shader = this.createObjectShader();
@@ -825,16 +831,38 @@ var webgl = {
 			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
             return model;
         };
+        // 
+        object.update = function(){
+            var changed = {
+                velocity: false,
+                color: false,
+            };
+            // do changes to object properties
+
+            if(changed.velocity){
+                gl.bindBuffer(gl.ARRAY_BUFFER, object.VelocityObject);
+			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.velocities));
+            } else if(changed.color) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
+			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.colors));
+            }
+            
+        }
+
 		setInterval(function() {
 			var particles = object.particleObject;
+            var changed = false;
 			for (var i=0; i<particles.length; i++) {
 				if(object.startTimes[i] + 7.0 <= webgl.time) {
-					object.startTimes[i] = webgl.time + 3.0*Math.random(); 
+					object.startTimes[i] = webgl.time + 3.0*Math.random();
+                    changed = true; 
 				}
 					
 			}
-			gl.bindBuffer(gl.ARRAY_BUFFER,object.startTimeObject);
-			gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.startTimes));
+            if(changed) {
+			    gl.bindBuffer(gl.ARRAY_BUFFER,object.startTimeObject);
+			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.startTimes));
+            }
 			
 		}, 1000);
 		this.objects[this.objects.length] = object;
@@ -843,8 +871,10 @@ var webgl = {
         // setup animation
        	this.repaintLoop.setup.call(this);
 
-        // setup handlers
-        this.setupKeyHandler();
+        if(this.debug) {
+            // setup handlers
+            this.setupKeyHandler();
+        }
     },
     displayFunc: function () {
         var gl = this.gl;
