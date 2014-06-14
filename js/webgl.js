@@ -31,23 +31,39 @@ var webgl = {
 			
 			switch(value) {
 				case 0:
+					
 					webgl.life += this.FERRUM;
 					console.log("Life" + webgl.life);
 					console.log(webgl.objects[2].particleObject.length);
+					var changed = false;
 					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
 						if (webgl.objects[2].particleObject[i].color[0] <= 0.9){
-							webgl.objects[2].particleObject[i].color[0] += 0.1;
-							webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,webgl.objects[2].colorObject);
-							webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
-							
-						}						
+							webgl.objects[2].particleObject[i].color[0] += 0.01;	
+							webgl.objects[2].particleObject[i].color[1] += 0.01;							
+							changed = true;
+						}	
 					}
-					console.log("Farbe: " + webgl.objects[2].particleObject[999].color[0]);				
-					
+					if(changed) {
+						console.log("changed");
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER, 0, new Float32Array(webgl.objects[2].colors));
+					}						
+						
+					console.log("Farbe: " + webgl.objects[2].particleObject[999].color[0]);					
 					
 					break;
 				case 1:
 					webgl.life += this.OXID;
+					console.log("Life" + webgl.life);
+					console.log(webgl.objects[2].particleObject.length);
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
+						
+							webgl.objects[2].particleObject[i].velocity[0] -= 0.1;							
+					}
+					webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,webgl.objects[2].velocityObject);
+					webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));					
+						
+					console.log("Geschwindigkeit: " + webgl.objects[2].particleObject[999].velocity[0]);	
 					break;
 				case 2:
 					webgl.life += this.HYDRO;
