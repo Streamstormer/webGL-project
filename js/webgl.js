@@ -100,8 +100,12 @@ var webgl = {
 					        objects.velocities[i] -= 0.01;
 							objects.velocities[i+2] -= 0.01;
 						}	
-                        changed = true;			
+                        changed = true;	
+						if (webgl.maxAge <0.5){
+							window.alert("Die kritische Masse ist verschwunden!!!");
+						}						
 						webgl.maxAge -= 0.5;
+						
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
@@ -118,7 +122,11 @@ var webgl = {
 							objects.velocities[i+1] -= 0.01;
 						}	
                         changed = true;	
+						if (webgl.maxAge <0.5){
+							window.alert("Die kritische Masse ist verschwunden!!!");
+						}
 						webgl.maxAge -= 0.5;
+						
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));						
@@ -173,7 +181,11 @@ var webgl = {
 						}	
 						
                         changed = true;		
-						webgl.maxAge -= 0.5;											
+						if (webgl.maxAge <0.5){
+							window.alert("Die kritische Masse ist verschwunden!!!");
+						}
+						webgl.maxAge -= 0.5;	
+						
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
