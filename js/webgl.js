@@ -45,7 +45,7 @@ var webgl = {
 					}
 					if(changed) {
 						console.log("changed");
-						webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
 						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
