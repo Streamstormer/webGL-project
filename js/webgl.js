@@ -36,19 +36,21 @@ var webgl = {
 					console.log("Life" + webgl.life);
 					console.log(webgl.objects[2].particleObject.length);
 					var changed = false;
-					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
-						if (webgl.objects[2].particleObject[i].color[0] <= 0.9){
-							webgl.objects[2].particleObject[i].color[0] += 0.01;	
-							webgl.objects[2].particleObject[i].color[1] += 0.01;							
-							changed = true;
+                    if (webgl.objects[2].colors[0] <= 0.9) {
+					    for (var i = 0; i < webgl.objects[2].particleObject.length;i+=4) {	    
+					        webgl.objects[2].colors[i] += 0.01;	
+					        webgl.objects[2].colors[1+1] += 0.01;									    
 						}	
+                        changed = true;
 					}
 					if(changed) {
 						console.log("changed");
-						webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						/*webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
-						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length); */
+                        webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,webgl.objects[2].colorObject);
+					    webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
 					}						
 						
 					console.log("Farbe: " + webgl.objects[2].particleObject[999].color[0]);					
@@ -747,8 +749,8 @@ var webgl = {
 		var buffer = { };
         buffer.particleObject = particles;
         buffer.vertexObject = this.createBuffer_f32(gl, vertices);
-        buffer.velocityObject = this.createBuffer_f32(gl, velocities);
-        buffer.colorObject = this.createBuffer_f32(gl, colors);
+        buffer.velocityObject = this.createBuffer_f32_d(gl, velocities);
+        buffer.colorObject = this.createBuffer_f32_d(gl, colors);
         buffer.startTimeObject = this.createBuffer_f32_d(gl, startTimes);
         buffer.dirObject = this.createBuffer_f32(gl, dirs);
 
@@ -881,13 +883,13 @@ var webgl = {
 			}*/
                 
 
-            if(changed.velocity){
+           /* if(changed.velocity){
                 gl.bindBuffer(gl.ARRAY_BUFFER, object.VelocityObject);
 			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.velocities));
             } else if(changed.color) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
 			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.colors));
-            }
+            }*/
             
         }
 
@@ -904,8 +906,7 @@ var webgl = {
             if(changed) {
 			    gl.bindBuffer(gl.ARRAY_BUFFER,object.startTimeObject);
 			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.startTimes));
-            }
-			
+            }			
 		}, 1000);
 		this.objects[this.objects.length] = object;
 
