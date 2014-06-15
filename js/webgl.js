@@ -48,7 +48,7 @@ var webgl = {
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
 						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
 											
-					console.log("Farbe: " + webgl.objects[2].particleObject[999].color[0]);					
+					//console.log("Farbe: " + webgl.objects[2].particleObject[999].color[0]);					
 					
 					break;
 				case 1:
@@ -924,12 +924,12 @@ var webgl = {
 		object.blending = true;
 		object.model = function() {
             var model = new J3DIMatrix4();
-			model.translate(-1.0,-1.7,-1.0);
+			model.translate(-1.0,-1.7,-2.0);
 			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
             return model;
         };
         // 
-        object.update = function(){
+        /*object.update = function(){
             var changed = {
                 velocity: false,
                 color: false,
@@ -944,7 +944,7 @@ var webgl = {
 					console.log("Life: " + webgl.life);
 					object.color = true;
 				}
-			}*/
+			}
                 
 
             if(changed.velocity){
@@ -955,7 +955,7 @@ var webgl = {
 			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.colors));
             }
             
-        }
+        }*/
 
 		setInterval(function() {
 			var particles = object.particleObject;
