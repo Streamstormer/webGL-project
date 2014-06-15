@@ -16,7 +16,12 @@ var webgl = {
 	objectAngle: 0,
 	debug: true,
 
+    /**
+    * @author: Silke Rohn
+    **/
+
 	elements: {
+        
 		HYDRO: -160,
 		KALIUM: -15,
 		TITAN: 35,
@@ -368,6 +373,8 @@ var webgl = {
      * optional way, so there is no chance that an incorrect VertexAttribArray gets
      * enabled.
      *
+     * Changes by: Benedikt Klotz
+     *
      * The @p object can provide the following elements:
      * @li loaded: boolean indicating whether the object is completely loaded
      * @li blending: boolean indicating whether blending needs to be enabled
@@ -405,7 +412,7 @@ var webgl = {
             gl.vertexAttribPointer(shader.vertexLocation, 3, gl.FLOAT, false, 0, 0);
         }
 
-		// start:particle related Attributes
+		// start: Particle System related Attributes
         if (shader.colorLocation !== undefined && object.colorObject !== undefined) {
 			gl.enableVertexAttribArray(shader.colorLocation);
             gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
@@ -421,15 +428,11 @@ var webgl = {
             gl.bindBuffer(gl.ARRAY_BUFFER, object.startTimeObject);
             gl.vertexAttribPointer(shader.startTimeLocation, 1, gl.FLOAT, false, 0, 0);
         }        
-		if (shader.dirLocation !== undefined && object.dirObject !== undefined) {
-            gl.enableVertexAttribArray(shader.dirLocation);
-            gl.bindBuffer(gl.ARRAY_BUFFER, object.dirObject);
-            gl.vertexAttribPointer(shader.dirLocation, 1, gl.FLOAT, false, 0, 0);
-        }
+
 		if(object.particle == true) {
 			gl.drawArrays(gl.POINTS, 0, object.particleObject.length);	
 		}
-		// End: particle related Attributes
+		// End: Particle System related Attributes
 
         if (shader.normalLocation !== undefined && object.normalObject !== undefined) {
             gl.enableVertexAttribArray(shader.normalLocation);
@@ -441,16 +444,20 @@ var webgl = {
             gl.bindBuffer(gl.ARRAY_BUFFER, object.texCoordObject);
             gl.vertexAttribPointer(shader.texCoordsLocation, 2, gl.FLOAT, false, 0, 0);
         }
+
+        // Activate blending
         if (object.blending !== undefined && object.blending === true) {
 			gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // 
-			//gl.blendColor(1.0,1.0,1.0,1.0)
+
             gl.enable(gl.BLEND);
 			gl.uniform1f(shader.alphaLocation, 0.8);
 			gl.disable(gl.DEPTH_TEST);
+        // Set Alpha if blending for object is not activated
         } else{
 			gl.uniform1f(shader.alphaLocation, 1.0);
 		}
 
+        // Activate culling
 		if(object.culling !== undefined && object.culling === true) {
 					gl.enable(gl.CULL_FACE);
 					gl.cullFace(gl.FRONT);
@@ -461,11 +468,14 @@ var webgl = {
             gl.drawElements(gl.TRIANGLES, object.numIndices, object.indexSize, 0);
         }
         gl.bindTexture(gl.TEXTURE_2D, null);
+
+        // Disbale Culling and enable Depth Test
         if (object.blending !== undefined && object.blending === true) {
 			gl.enable(gl.DEPTH_TEST);
 			gl.disable(gl.BLEND);
         }
 
+        // Disable Culling
 		if(object.culling !== undefined && object.culling === true) {
 			gl.disable(gl.CULL_FACE);
 		}
@@ -508,6 +518,12 @@ var webgl = {
         webgl.checkError("create shader " + source);
         return shader;
     },
+
+    /**
+     * Create a texture shader with Lighting enabled
+     *
+     * @author: Benedikt Klotz
+     **/
     createObjectShader: function() {
         var gl = this.gl;
         var shader = {
@@ -552,6 +568,12 @@ var webgl = {
         }, "html");
         return shader;
     },
+
+    /**
+     * Create a special shader for the Particle System
+     *
+     * @author: Benedikt Klotz
+     **/
 	createParticleShader: function () {
 		var gl = this.gl;
         var shader = {
@@ -570,8 +592,6 @@ var webgl = {
                 var shader = {};
 				// resolve locations
 				this.mvpLocation           = gl.getUniformLocation(program, "modelViewProjection"),
-                //this.normalMatrixLocation = gl.getUniformLocation(program, "u_normalMatrix"),
-                //this.lightDirLocation     = gl.getUniformLocation(program, "u_lightDir"),
 				this.timeLocation 		   = gl.getUniformLocation(program, "u_time"),
                 this.vertexLocation        = gl.getAttribLocation(program, "vertex"),
 				this.boxVertexLocationF    = gl.getUniformLocation(program, "boxVertexFront"),
@@ -579,13 +599,10 @@ var webgl = {
 				this.boxVertexLocationL    = gl.getUniformLocation(program, "boxVertexLeft"),
 				this.boxVertexLocationB    = gl.getUniformLocation(program, "boxVertexBack"),
 				this.colorLocation		   = gl.getAttribLocation(program, "initialColor"),
-                //this.normalLocation       = gl.getAttribLocation(program, "normal"),
                 this.velocityLocation      = gl.getAttribLocation(program, "velocity"),
                 this.startTimeLocation     = gl.getAttribLocation(program, "startTime"),
                 this.sizeLocation          = gl.getAttribLocation(program, "size"),
-                this.dirLocation 		   = gl.getAttribLocation(program, "dir");
                 this.loaded = true;
-
 	    	},
 			use: function () {
                 gl.useProgram(this.program);
@@ -616,16 +633,20 @@ var webgl = {
                 if (event.shiftKey) {
                     m.rotateZAxis.call(m, 1);
                 } else {
-                    //m.moveLeft.call(m);
-					m.rotateObjectsLeft.call(m);
+                    m.moveLeft.call(m);
+                    /** disabled
+					 * m.rotateObjectsLeft.call(m);
+                     **/
                 }
                 break;
             case 37:
                 if (event.shiftKey) {
                     m.rotateZAxis.call(m, -1);
                 } else {
-                    //m.moveRight.call(m);
-					m.rotateObjectsRight.call(m);
+                    m.moveRight.call(m);
+                    /** disabled
+					 * m.rotateObjectsRight.call(m);
+                     **/
                 }
                 break;
             case 38:
@@ -647,7 +668,13 @@ var webgl = {
                 break;
             }
         });
-		},
+	},
+
+    /**
+     * Create ground object
+     *
+     * @author: Benedikt Klotz
+     */
 	makeGround: function (gl){
 		var buffer = { };
 
@@ -675,6 +702,12 @@ var webgl = {
 
 		return buffer;
 	},
+
+    /**
+     * create an upwards open box
+     *
+     * @author: Benedikt Klotz
+     **/
 	makeOpenBox: function (gl){
 		var buffer = { };
 
@@ -713,20 +746,6 @@ var webgl = {
 				16,17,18,  16,18,19,    // bottom
           		20,21,22,  20,22,23 ];   // back
 
-		// setup vertices of box for collision detection in particle shader
-/*
-		for(var i = 0;i<6;i++) {
-			var array = new Float32Array(16);
-			for(var j = 1, step = 0;j<=16;) {
-				if(j % 4) {
-					// set w component
-					array[j*4] = 1;
-					step++;
-				} else{
-					array[j-step] = vertices
-				}
-			}
-		}*/
 
 		buffer.vertexObject = this.createBuffer_f32(gl, vertices);
 		buffer.texCoordObject = this.createBuffer_f32(gl, texCoords);
@@ -737,6 +756,14 @@ var webgl = {
 
 		return buffer;
 	},
+
+    /**
+     *
+     * Create Buffer Objects in Bit Size 8 and 32 in float and unsigned int.
+     * The function with a d is used for dynamic draws
+     *
+     * @author: Benedikt Klotz
+     **/      
     createBuffer_f32: function (gl, data) {
 	    var vbo = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -760,6 +787,11 @@ var webgl = {
         return vbo;
     },
 
+    /**
+     * Create a particle system, whose particle are black and are going in all directions
+     * 
+     * @author: Benedikt Klotz, Silke Rohn
+     **/
    createParticle: function (dir) {
 	    var particle = {};
         particle.position = [1, 1, 1];
@@ -797,12 +829,11 @@ var webgl = {
         // start with black particles
         particle.color = [0.0, 0.0, 0.0, 1.0];
         particle.startTime = Math.random() * 10 + 1;
-       	particle.dir = 0;
         return particle;
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0, dir=0; i<100; i++, dir++) {
+        for (var i=0, dir=0; i<10000; i++, dir++) {
 			if(dir == 8) {
 				dir=0;
 			}
@@ -877,10 +908,15 @@ var webgl = {
 		object.loaded = true;
 	},
 
-	
+    /**
+     * Initialize all systems and objects
+     *
+     * @author: Benedikt Klotz
+     **/
     init: function (canvasName, vertexShaderName, fragmentShaderName) {
         var canvas, gl;
 
+        // Setup Error reporting
 		$(document).ajaxError(function(e,xhr,opt){
 		    console.log("Error requesting " + opt.url + ": " + xhr.status + " " + xhr.statusText);
 		});
@@ -949,35 +985,8 @@ var webgl = {
 			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
             return model;
         };
-        // 
-        /*object.update = function(){
-            var changed = {
-                velocity: false,
-                color: false,
-            };
-            // do changes to object properties
-            //....
-			/*var particles = object.particleObject;
-			for (var i=0; i<particles.length;i++){
-				if (webgl.life < 100){
-					object.colors[i][0]+=0.1;
-					console.log(object.colors[i][0]);
-					console.log("Life: " + webgl.life);
-					object.color = true;
-				}
-			}
-                
 
-           /* if(changed.velocity){
-                gl.bindBuffer(gl.ARRAY_BUFFER, object.VelocityObject);
-			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.velocities));
-            } else if(changed.color) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
-			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.colors));
-            }
-            
-        }*/
-
+        // Reset particle startTime if there are discarded
 		setInterval(function() {
 			var particles = object.particleObject;
             var changed = false;
