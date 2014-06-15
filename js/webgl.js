@@ -5,7 +5,7 @@
 * Source is the Basis applikation.
 * Added and changed functionalities:
 * @Benedikt: Objects, Lighting,  particle systems, shader, blending and face culling
-* @Silke: particle system, changes to particle systems
+* @Silke: particle system, changes to particle systems (Elements)
 */
 
 var webgl = {
@@ -83,7 +83,7 @@ var webgl = {
 							objects.velocities[i+1] += 0.01;
 						}	
                         changed = true;	
-						webgl.maxAge -= 0.5;
+						webgl.maxAge += 0.5;
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
