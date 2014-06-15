@@ -35,57 +35,120 @@ var webgl = {
 					webgl.life += this.FERRUM;
 					console.log("Life" + webgl.life);
 					console.log(webgl.objects[2].particleObject.length);
+
 					var changed = false;
                     if (webgl.objects[2].colors[0] <= 0.9) {
-					    for (var i = 0; i < webgl.objects[2].particleObject.length;i+=4) {	    
+					    for (var i = 0; i < webgl.objects[2].colors.length;i+=4) {	    
 					        webgl.objects[2].colors[i] += 0.01;	
-					        webgl.objects[2].colors[1+1] += 0.01;									    
+					       // webgl.objects[2].colors[i+1] += 0.01;									    
 						}	
                         changed = true;
 					}
 					if(changed) {
 						console.log("changed");
-						/*webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
-						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length); */
                         webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,webgl.objects[2].colorObject);
 					    webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
-					}						
-						
-					console.log("Farbe: " + webgl.objects[2].particleObject[999].color[0]);					
-					
+					}											
 					break;
 				case 1:
 					webgl.life += this.OXID;
 					console.log("Life" + webgl.life);
 					console.log(webgl.objects[2].particleObject.length);
 					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
-						
-							webgl.objects[2].particleObject[i].velocity[0] -= 0.1;							
+						if (webgl.objects[2].particleObject[i].color[2] <= 0.9){
+							webgl.objects[2].particleObject[i].color[2] += 0.1;							
+						}	
 					}
-					webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,webgl.objects[2].velocityObject);
-					webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));					
+					
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);			
 						
 					console.log("Geschwindigkeit: " + webgl.objects[2].particleObject[999].velocity[0]);	
 					break;
 				case 2:
 					webgl.life += this.HYDRO;
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
+						
+							webgl.objects[2].particleObject[i].velocity[0] += 0.01;	
+							webgl.objects[2].particleObject[i].velocity[1] += 0.01;						
+						
+					}
+					
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
 					break;
 				case 3:
 					webgl.life += this.URAN;
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
+						if (webgl.objects[2].particleObject[i].color[1] <= 0.9){
+							webgl.objects[2].particleObject[i].color[1] += 0.1;	
+							webgl.objects[2].particleObject[i].velocity[0] -= 0.01;
+							webgl.objects[2].particleObject[i].velocity[2] -= 0.01;
+						}	
+					}
+					
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
 					break;
 				case 4:
 					webgl.life += this.CARBON;
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
+						
+							webgl.objects[2].particleObject[i].velocity[0] += 0.05;	
+							webgl.objects[2].particleObject[i].velocity[1] -= 0.01;							
+							
+					}
+					
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocitites));
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
 					break;
 				case 5:
 					webgl.life += this.TITAN;
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
+						if (webgl.objects[2].particleObject[i].color[2] >= 0.1){
+							webgl.objects[2].particleObject[i].color[2] -= 0.1;	
+													
+						}	
+					}
+					
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
 					break;
 				case 6:
 					webgl.life += this.MAGNESIUM;
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
+						if ((webgl.objects[2].particleObject[i].color[0] >= 0.1) && (webgl.objects[2].particleObject[i].color[1] >= 0.1)){
+							webgl.objects[2].particleObject[i].color[0] -= 0.1;	
+							webgl.objects[2].particleObject[i].color[1] -= 0.1;							
+						}	
+					}
+					
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
 					break;
 				case 7:
 					webgl.life += this.KALIUM;
+					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){						
+							webgl.objects[2].particleObject[i].velocity[2] += 0.05;	
+							webgl.objects[2].particleObject[i].velocity[1] += 0.05;						
+					}
+					
+						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocitites));
+						webgl.gl.drawArrays(webgl.gl.POINTS, 0, webgl.objects[2].particleObject.length);
 					break;
 				default:
 					console.log("Error: unknown element"); 
@@ -710,14 +773,14 @@ var webgl = {
 				break;			
 		}
         // start with black particles
-        particle.color = [0.0, 0.0, 0.0, 1.0];
+        particle.color = [1.0, 0.0, 0.0, 1.0];
         particle.startTime = Math.random() * 10 + 1;
        	particle.dir = 0;
         return particle;
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0, dir=0; i<100000; i++, dir++) {
+        for (var i=0, dir=0; i<100; i++, dir++) {
 			if(dir == 8) {
 				dir=0;
 			}
@@ -865,7 +928,7 @@ var webgl = {
             return model;
         };
         // 
-        object.update = function(){
+        /*object.update = function(){
             var changed = {
                 velocity: false,
                 color: false,
@@ -880,7 +943,7 @@ var webgl = {
 					console.log("Life: " + webgl.life);
 					object.color = true;
 				}
-			}*/
+			}
                 
 
            /* if(changed.velocity){
@@ -889,9 +952,9 @@ var webgl = {
             } else if(changed.color) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
 			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.colors));
-            }*/
+            }
             
-        }
+        }*/
 
 		setInterval(function() {
 			var particles = object.particleObject;
