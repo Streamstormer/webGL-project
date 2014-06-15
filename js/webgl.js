@@ -15,7 +15,7 @@ var webgl = {
 	life: 250,
 	objectAngle: 0,
 	debug: true,
-	//maxAlter: 5.0,
+	maxAge: 5.0,
 
     /**
     * @author: Silke Rohn
@@ -401,6 +401,7 @@ var webgl = {
 		// Set Time	
 		if(object.particle == true) {	
 			gl.uniform1f(shader.timeLocation, this.time);
+            gl.uniform1f(shader.ageLocation, this.maxAge);
 		}
 
         if (object.texture !== undefined) {
@@ -594,10 +595,7 @@ var webgl = {
 				this.mvpLocation           = gl.getUniformLocation(program, "modelViewProjection"),
 				this.timeLocation 		   = gl.getUniformLocation(program, "u_time"),
                 this.vertexLocation        = gl.getAttribLocation(program, "vertex"),
-				this.boxVertexLocationF    = gl.getUniformLocation(program, "boxVertexFront"),
-				this.boxVertexLocationR	   = gl.getUniformLocation(program, "boxVertexRight"),
-				this.boxVertexLocationL    = gl.getUniformLocation(program, "boxVertexLeft"),
-				this.boxVertexLocationB    = gl.getUniformLocation(program, "boxVertexBack"),
+                this.ageLocation           = gl.getUniformLocation(program, "maxAlter");
 				this.colorLocation		   = gl.getAttribLocation(program, "initialColor"),
                 this.velocityLocation      = gl.getAttribLocation(program, "velocity"),
                 this.startTimeLocation     = gl.getAttribLocation(program, "startTime"),
