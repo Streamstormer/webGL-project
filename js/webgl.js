@@ -103,7 +103,7 @@ var webgl = {
 						
 							webgl.objects[2].particleObject[i].velocity[0] += 0.05;	
 							webgl.objects[2].particleObject[i].velocity[1] -= 0.01;							
-						}	
+							
 					}
 					
 						//webgl.gl.bufferData(webgl.gl.ARRAY_BUFFER, new Float32Array(webgl.objects[2].colors), webgl.gl.DYNAMIC_DRAW);
@@ -128,7 +128,7 @@ var webgl = {
 				case 6:
 					webgl.life += this.MAGNESIUM;
 					for (var i = 0; i < webgl.objects[2].particleObject.length;i++){
-						if ((webgl.objects[2].particleObject[i].color[0] >= 0.1 && (webgl.objects[2].particleObject[i].color[1] >= 0.1)){
+						if ((webgl.objects[2].particleObject[i].color[0] >= 0.1) && (webgl.objects[2].particleObject[i].color[1] >= 0.1)){
 							webgl.objects[2].particleObject[i].color[0] -= 0.1;	
 							webgl.objects[2].particleObject[i].color[1] -= 0.1;							
 						}	
@@ -781,7 +781,7 @@ var webgl = {
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0, dir=0; i<100000; i++, dir++) {
+        for (var i=0, dir=0; i<100; i++, dir++) {
 			if(dir == 8) {
 				dir=0;
 			}
