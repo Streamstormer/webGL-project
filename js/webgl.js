@@ -5,7 +5,7 @@
 * Source is the Basis applikation.
 * Added and changed functionalities:
 * @Benedikt: Objects, Lighting,  particle systems, shader, blending and face culling
-* @Silke: particle system
+* @Silke: particle system, changes to particle systems
 */
 
 var webgl = {
@@ -15,6 +15,7 @@ var webgl = {
 	life: 250,
 	objectAngle: 0,
 	debug: true,
+	//maxAlter: 5.0,
 
 	elements: {
 		HYDRO: -160,
@@ -27,7 +28,7 @@ var webgl = {
 		OXID: -5,
 		select: function() {
 			var select = document.getElementById("select");
-			var value = select.selectedIndex;
+			var value = select.selectedIndex;			
 			
 			switch(value) {
 				case 0:
@@ -60,18 +61,15 @@ var webgl = {
 					        webgl.objects[2].colors[i+1] += 0.1;						        									    
 						}	
                         changed = true;
-					}					
-										
+					}										
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
-							
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));							
 					break;
 				case 2:
 					webgl.life += this.HYDRO;
 					if (webgl.life <0){
 						window.alert("Die kritische Masse ist explodiert!!!");
-					}
-					
+					}					
 					var changed = false;
                     
 					    for (var i = 0; i < webgl.objects[2].velocities.length;i+=3) {	    
@@ -95,8 +93,7 @@ var webgl = {
 					        webgl.objects[2].velocities[i] -= 0.01;
 							webgl.objects[2].velocities[i+2] -= 0.01;
 						}	
-                        changed = true;
-					
+                        changed = true;					
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));
@@ -115,8 +112,7 @@ var webgl = {
                         changed = true;									
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));
-						
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));						
 					break;
 				case 5:
 					webgl.life += this.TITAN;
@@ -131,8 +127,7 @@ var webgl = {
 							
 						}	
                         changed = true;
-					}
-					
+					}					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
 					break;
@@ -156,7 +151,7 @@ var webgl = {
 					break;
 				case 7:
 					webgl.life += this.KALIUM;
-					if (webgl.life <0){
+					/*if (webgl.life <0){
 						window.alert("Die kritische Masse ist explodiert!!!");
 					}
 					
@@ -165,12 +160,19 @@ var webgl = {
 					    for (var i = 0; i < webgl.objects[2].velocities.length;i+=3) {	 
 							webgl.objects[2].velocities[i] += 0.01;//Math.random()*.1;
 					        webgl.objects[2].velocities[i+1] += 0.01;//Math.random()*.1;	
-							webgl.objects[2].velocities[i+2] += 0.01;//Math.random()*.1;							
+							webgl.objects[2].velocities[i+2] += 0.01;//Math.random()*.1;
+												
 						}	
-                        changed = true;					
+						
+                        changed = true;		
+						/*maxAlter -= 0.5;
+						var maxAlter = webgl.gl.getUniformLocation(vertex, "maxAlter");
+						console.log("Alter" + maxAlter);
+						
+						
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));*/
 					break;
 				default:
 					console.log("Error: unknown element"); 
@@ -178,8 +180,6 @@ var webgl = {
 			
 		},
 	},
-
-
 
     /**
      * Encapsulates Projection and Viewing matrix and some helper functions.
@@ -802,7 +802,7 @@ var webgl = {
     },
 	createParticelSystem: function(gl) {
 		var particles = [];
-        for (var i=0, dir=0; i<100; i++, dir++) {
+        for (var i=0, dir=0; i<1000; i++, dir++) {
 			if(dir == 8) {
 				dir=0;
 			}
@@ -949,35 +949,7 @@ var webgl = {
 			model.rotate(this.objectAngle, 0.0, 1.0, 0.0);
             return model;
         };
-        // 
-        /*object.update = function(){
-            var changed = {
-                velocity: false,
-                color: false,
-            };
-            // do changes to object properties
-            //....
-			/*var particles = object.particleObject;
-			for (var i=0; i<particles.length;i++){
-				if (webgl.life < 100){
-					object.colors[i][0]+=0.1;
-					console.log(object.colors[i][0]);
-					console.log("Life: " + webgl.life);
-					object.color = true;
-				}
-			}
-                
-
-           /* if(changed.velocity){
-                gl.bindBuffer(gl.ARRAY_BUFFER, object.VelocityObject);
-			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.velocities));
-            } else if(changed.color) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, object.colorObject);
-			    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(object.colors));
-            }
-            
-        }*/
-
+        
 		setInterval(function() {
 			var particles = object.particleObject;
             var changed = false;

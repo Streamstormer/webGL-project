@@ -1,6 +1,7 @@
 precision highp float;
 uniform mat4 modelViewProjection;
 uniform float u_time;
+uniform float maxAlter;
 
 attribute vec4 vertex;
 attribute vec4 initialColor;
@@ -15,7 +16,8 @@ void main() {
 	vec3 tmp;
     vec4 v = vertex;
     float t = u_time - startTime;
-    if ((t >= 0.0) && (t <= 5.0)) {
+		
+    if ((t >= 0.0) && (t <= maxAlter)) {
         v_color = initialColor;
 		if(dir == 1.0) {
         	v.xyz += t * velocity;
