@@ -33,7 +33,8 @@ var webgl = {
 		OXID: -5,
 		select: function() {
 			var select = document.getElementById("select");
-			var value = select.selectedIndex;			
+			var value = select.selectedIndex;		
+			var objects = webgl.objects[2]			
 			
 			switch(value) {
 				case 0:
@@ -43,16 +44,16 @@ var webgl = {
 						window.alert("Die kritische Masse ist explodiert!!!");
 					}					
 					var changed = false;
-                    if (webgl.objects[2].colors[0] <= 0.9) {
-					    for (var i = 0; i < webgl.objects[2].colors.length;i+=4) {	    
-					        webgl.objects[2].colors[i] += 0.01;	
-					        webgl.objects[2].colors[i+1] += 0.01;									    
+                    if (objects.colors[0] <= 0.9) {
+					    for (var i = 0; i < objects.colors.length;i+=4) {	    
+					        objects.colors[i] += 0.01;	
+					        objects.colors[i+1] += 0.01;									    
 						}	
                         changed = true;
 					}
 					if(changed) {
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,webgl.objects[2].colorObject);
-					    webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER,objects.colorObject);
+					    webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.colors));
 					}											
 					break;
 				case 1:
@@ -61,14 +62,14 @@ var webgl = {
 						window.alert("Die kritische Masse ist explodiert!!!");
 					}
 					var changed = false;
-                    if (webgl.objects[2].colors[0] <= 0.9) {
-					    for (var i = 0; i < webgl.objects[2].colors.length;i+=4) {	    
-					        webgl.objects[2].colors[i+1] += 0.1;						        									    
+                    if (objects.colors[0] <= 0.9) {
+					    for (var i = 0; i < objects.colors.length;i+=4) {	    
+					        objects.colors[i+1] += 0.1;						        									    
 						}	
                         changed = true;
 					}										
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));							
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.colorObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.colors));							
 					break;
 				case 2:
 					webgl.life += this.HYDRO;
@@ -77,14 +78,14 @@ var webgl = {
 					}					
 					var changed = false;
                     
-					    for (var i = 0; i < webgl.objects[2].velocities.length;i+=3) {	    
-					        webgl.objects[2].velocities[i] += 0.01;	
-							webgl.objects[2].velocities[i+1] += 0.01;
+					    for (var i = 0; i < objects.velocities.length;i+=3) {	    
+					        objects.velocities[i] += 0.01;	
+							objects.velocities[i+1] += 0.01;
 						}	
                         changed = true;					
 					
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
 					break;
 				case 3:
 					webgl.life += this.URAN;
@@ -94,14 +95,14 @@ var webgl = {
 					
 					var changed = false;
                     
-					    for (var i = 0; i < webgl.objects[2].colors.length;i+=3) {	    
-					        webgl.objects[2].velocities[i] -= 0.01;
-							webgl.objects[2].velocities[i+2] -= 0.01;
+					    for (var i = 0; i < objects.colors.length;i+=3) {	    
+					        objects.velocities[i] -= 0.01;
+							objects.velocities[i+2] -= 0.01;
 						}	
                         changed = true;					
 					
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
 					break;
 				case 4:
 					webgl.life += this.CARBON;
@@ -110,14 +111,14 @@ var webgl = {
 					}
 					
 					var changed = false;
-                        for (var i = 0; i < webgl.objects[2].velocities.length;i+=3) {	    
-					       	webgl.objects[2].velocities[i] += 0.05;
-							webgl.objects[2].velocities[i+1] -= 0.01;
+                        for (var i = 0; i < objects.velocities.length;i+=3) {	    
+					       	objects.velocities[i] += 0.05;
+							objects.velocities[i+1] -= 0.01;
 						}	
                         changed = true;									
 					
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));						
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));						
 					break;
 				case 5:
 					webgl.life += this.TITAN;
@@ -126,15 +127,15 @@ var webgl = {
 					}
 					
 					var changed = false;
-                    if (webgl.objects[2].colors[2] >= 0.1) {
-					    for (var i = 0; i < webgl.objects[2].colors.length;i+=4) {	    
-					        webgl.objects[2].colors[i+2] -= 0.1;	
+                    if (objects.colors[2] >= 0.1) {
+					    for (var i = 0; i < objects.colors.length;i+=4) {	    
+					        objects.colors[i+2] -= 0.1;	
 							
 						}	
                         changed = true;
 					}					
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.colorObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.colors));
 					break;
 				case 6:
 					webgl.life += this.MAGNESIUM;
@@ -143,41 +144,38 @@ var webgl = {
 					}
 					
 					var changed = false;
-                    if ((webgl.objects[2].colors[0] >= 0.1) && (webgl.objects[2].colors[1] >= 0.1)) {
-					    for (var i = 0; i < webgl.objects[2].colors.length;i+=4) {	    
-					        webgl.objects[2].colors[i] -= 0.1;	
-							webgl.objects[2].colors[i+1] -= 0.1;							
+                    if ((objects.colors[0] >= 0.1) && (objects.colors[1] >= 0.1)) {
+					    for (var i = 0; i < objects.colors.length;i+=4) {	    
+					        objects.colors[i] -= 0.1;	
+							objects.colors[i+1] -= 0.1;							
 						}	
                         changed = true;
 					}
 					
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].colorObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].colors));
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.colorObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.colors));
 					break;
 				case 7:
 					webgl.life += this.KALIUM;
-					/*if (webgl.life <0){
+					if (webgl.life <0){
 						window.alert("Die kritische Masse ist explodiert!!!");
 					}
 					
 					var changed = false;
                     
 					    for (var i = 0; i < webgl.objects[2].velocities.length;i+=3) {	 
-							webgl.objects[2].velocities[i] += 0.01;//Math.random()*.1;
-					        webgl.objects[2].velocities[i+1] += 0.01;//Math.random()*.1;	
-							webgl.objects[2].velocities[i+2] += 0.01;//Math.random()*.1;
-												
+							objects.velocities[i] += 0.01;//Math.random()*.1;
+					        objects.velocities[i+1] += 0.01;//Math.random()*.1;	
+							objects.velocities[i+2] += 0.01;//Math.random()*.1;												
 						}	
 						
                         changed = true;		
 						/*maxAlter -= 0.5;
 						var maxAlter = webgl.gl.getUniformLocation(vertex, "maxAlter");
-						console.log("Alter" + maxAlter);
-						
-						
+						console.log("Alter" + maxAlter);*/						
 					
-						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, webgl.objects[2].velocityObject);
-						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(webgl.objects[2].velocities));*/
+						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
+						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
 					break;
 				default:
 					console.log("Error: unknown element"); 
