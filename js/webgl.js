@@ -12,7 +12,7 @@ var webgl = {
     gl: null,
     objects: [],
 	time: 0.0,
-	life: 250,
+	life: 650,
 	objectAngle: 0,
 	debug: true,
 	maxAge: 5.0,
@@ -831,7 +831,7 @@ var webgl = {
 	createParticelSystem: function(gl) {
 		var particles = [];
 
-        for (var i=0, dir=0; i<1000; i++, dir++) {
+        for (var i=0, dir=0; i<100000; i++, dir++) {
 			if(dir == 8) {
 				dir=0;
 			}
