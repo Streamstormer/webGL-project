@@ -23,7 +23,7 @@ var webgl = {
 
 	elements: {
         
-		HYDRO: -160,
+		HYDRO: -15,
 		KALIUM: -15,
 		TITAN: 35,
 		FERRUM: 10,
@@ -82,7 +82,8 @@ var webgl = {
 					        objects.velocities[i] += 0.01;	
 							objects.velocities[i+1] += 0.01;
 						}	
-                        changed = true;					
+                        changed = true;	
+						webgl.maxAge -= 0.5;
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
@@ -99,7 +100,8 @@ var webgl = {
 					        objects.velocities[i] -= 0.01;
 							objects.velocities[i+2] -= 0.01;
 						}	
-                        changed = true;					
+                        changed = true;			
+						webgl.maxAge -= 0.5;
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
@@ -112,10 +114,11 @@ var webgl = {
 					
 					var changed = false;
                         for (var i = 0; i < objects.velocities.length;i+=3) {	    
-					       	objects.velocities[i] += 0.05;
+					       	objects.velocities[i] -= 0.01;
 							objects.velocities[i+1] -= 0.01;
 						}	
-                        changed = true;									
+                        changed = true;	
+						webgl.maxAge -= 0.5;
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));						
@@ -170,9 +173,7 @@ var webgl = {
 						}	
 						
                         changed = true;		
-						/*maxAlter -= 0.5;
-						var maxAlter = webgl.gl.getUniformLocation(vertex, "maxAlter");
-						console.log("Alter" + maxAlter);*/						
+						webgl.maxAge -= 0.5;											
 					
 						webgl.gl.bindBuffer(webgl.gl.ARRAY_BUFFER, objects.velocityObject);
 						webgl.gl.bufferSubData(webgl.gl.ARRAY_BUFFER,0,new Float32Array(objects.velocities));
