@@ -12,7 +12,7 @@ var webgl = {
     gl: null,
     objects: [],
 	time: 0.0,
-	life: 650,
+	life: 250,
 	objectAngle: 0,
 	debug: true,
 	maxAge: 5.0,
